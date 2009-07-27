@@ -1,0 +1,7 @@
+bin/*/*
+res/
+*.class
+*.dex
+*.apk
+.project
+.classpath
