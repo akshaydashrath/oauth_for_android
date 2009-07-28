@@ -1,27 +1,33 @@
 package com.novoda.oauth.provider;
 
+import java.util.HashMap;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.novoda.oauth.provider.OAuth.Providers;
 
 public class OAuthProvider extends ContentProvider {
+	private static final String TAG = "OAuth:";
 
-    /**
+	private static final String PROVIDER_TABLE_NAME = "providers";
+
+	/**
      * This class helps open, create, and upgrade the database file.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
         private static final String DATABASE_NAME = "oauth.db";
 		private static final int DATABASE_VERSION = 1;
-		private static final String PROVIDER_TABLE_NAME = "providers";
-		private static final String TAG = "OAuth:";
 
 		DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,7 +36,7 @@ public class OAuthProvider extends ContentProvider {
         @Override
         public void onCreate(SQLiteDatabase db) {
 			db.execSQL("CREATE TABLE " + PROVIDER_TABLE_NAME + " ("
-                    + Providers._ID + " INTEGER PRIMARY KEY,"
+                    + Providers._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + Providers.ACCESS_SECRET + " TEXT,"
                     + Providers.ACCESS_TOKEN + " TEXT,"
                     + Providers.ACCESS_TOKEN_URL + " TEXT,"
@@ -52,6 +58,13 @@ public class OAuthProvider extends ContentProvider {
             onCreate(db);
         }
     }
+
+	private static final int PROVIDERS = 0;
+	private static final int PROVIDER_ID = 1;
+
+	private static UriMatcher sUriMatcher;
+
+	private static HashMap<String, String> sProviderProjectionMap;
 
     private DatabaseHelper mOpenHelper;
 
@@ -79,7 +92,39 @@ public class OAuthProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
-		return null;
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
+        switch (sUriMatcher.match(uri)) {
+        case PROVIDERS:
+            qb.setTables(PROVIDER_TABLE_NAME);
+            qb.setProjectionMap(sProviderProjectionMap);
+            break;
+
+        case PROVIDER_ID:
+            qb.setTables(PROVIDER_TABLE_NAME);
+            qb.setProjectionMap(sProviderProjectionMap);
+            qb.appendWhere(Providers._ID + "=" + uri.getPathSegments().get(1));
+            break;
+
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+
+        // If no sort order is specified use the default
+        String orderBy;
+        if (TextUtils.isEmpty(sortOrder)) {
+            orderBy = OAuth.Providers.DEFAULT_SORT_ORDER;
+        } else {
+            orderBy = sortOrder;
+        }
+
+        // Get the database and run the query
+        SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+        Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
+
+        // Tell the cursor what uri to watch, so it knows when its source data changes
+        c.setNotificationUri(getContext().getContentResolver(), uri);
+        return c;
 	}
 
 	@Override
@@ -87,5 +132,25 @@ public class OAuthProvider extends ContentProvider {
 			String[] selectionArgs) {
 		return 0;
 	}
+
+    static {
+        sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        sUriMatcher.addURI(OAuth.AUTHORITY, "providers", PROVIDERS);
+        sUriMatcher.addURI(OAuth.AUTHORITY, "providers/#", PROVIDER_ID);
+
+        sProviderProjectionMap = new HashMap<String, String>();
+        sProviderProjectionMap.put(Providers._ID, Providers._ID);
+        sProviderProjectionMap.put(Providers.ACCESS_SECRET, Providers.ACCESS_SECRET);
+        sProviderProjectionMap.put(Providers.ACCESS_TOKEN, Providers.ACCESS_TOKEN);
+        sProviderProjectionMap.put(Providers.ACCESS_TOKEN_URL, Providers.ACCESS_TOKEN_URL);
+        sProviderProjectionMap.put(Providers.AUTHORIZE_URL, Providers.AUTHORIZE_URL);
+        sProviderProjectionMap.put(Providers.CONSUMER_KEY, Providers.CONSUMER_KEY);
+        sProviderProjectionMap.put(Providers.CONSUMER_SECRET, Providers.CONSUMER_SECRET);
+        sProviderProjectionMap.put(Providers.REQUEST_TOKEN, Providers.REQUEST_TOKEN);
+        sProviderProjectionMap.put(Providers.REQUEST_TOKEN_URL, Providers.REQUEST_TOKEN_URL);
+        
+        sProviderProjectionMap.put(Providers.CREATED_DATE, Providers.CREATED_DATE);
+        sProviderProjectionMap.put(Providers.MODIFIED_DATE, Providers.MODIFIED_DATE);
+    }
 
 }

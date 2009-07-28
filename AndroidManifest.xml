@@ -11,7 +11,6 @@
 			android:name=".provider.OAuthProvider"
 			android:authorities="com.novoda.oauth.provider.OAuth" />
 
-
 	</application>
 	<uses-sdk
 		android:minSdkVersion="3" />
