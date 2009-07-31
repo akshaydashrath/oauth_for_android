@@ -1,7 +1,14 @@
-bin/*/*
-res/
+bin
+bin/**/*
+gen/
 *.class
 *.dex
 *.apk
 .project
 .classpath
+default.properties
+
+tests/.*
+tests/gen/
+tests/bin/
+tests/default.properties

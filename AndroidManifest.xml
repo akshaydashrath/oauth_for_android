@@ -1,17 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.novoda.oauth"
-	android:versionCode="1"
-	android:versionName="1.0">
-	<application
-		android:icon="@drawable/icon"
-		android:label="@string/app_name">
-		<provider
-			android:name=".provider.OAuthProvider"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.novoda.oauth" android:versionCode="1" android:versionName="1.0">
+	<application android:icon="@drawable/icon" android:label="@string/app_name">
+
+		<provider android:name=".provider.OAuthProvider"
 			android:authorities="com.novoda.oauth.provider.OAuth" />
 
+		<activity android:name=".activities.OAuthListing">
+			
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+			
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.LAUNCHER" />
+				<data android:mimeType="vnd.android.cursor.item/vnd.novoda.oauth.provider" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".activities.OAuthActivity"
+			android:launchMode="singleTask">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"></action>
+				<category android:name="android.intent.category.BROWSABLE"></category>
+				<category android:name="android.intent.category.DEFAULT"></category>
+				<data android:scheme="oauth"></data>
+			</intent-filter>
+		</activity>
+
+		<activity-alias android:name=".activities.OAuth"
+			android:targetActivity=".activities.OAuthActivity">
+			<!-- Insert a new value -->
+			<intent-filter>
+				<action android:name="android.intent.action.CREATE_SHORTCUT" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity-alias>
+
 	</application>
-	<uses-sdk
-		android:minSdkVersion="3" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-sdk android:minSdkVersion="3" />
 </manifest> 

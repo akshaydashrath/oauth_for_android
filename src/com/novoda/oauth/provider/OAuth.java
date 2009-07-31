@@ -86,12 +86,6 @@ public final class OAuth {
         public static final String CONSUMER_SECRET = "consumer_secret";
         
         /**
-         * The request token - should be deleted upon activation
-         * <P>Type: TEXT</P>
-         */
-        public static final String REQUEST_TOKEN = "request_token";
-        
-        /**
          * The access token
          * <P>Type: TEXT</P>
          */
