@@ -7,18 +7,14 @@
 			android:authorities="com.novoda.oauth.provider.OAuth" />
 
 		<activity android:name=".activities.OAuthListing">
-			
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
-			
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
-				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.LAUNCHER" />
-				<data android:mimeType="vnd.android.cursor.item/vnd.novoda.oauth.provider" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
 			</intent-filter>
 		</activity>
 
@@ -29,6 +25,11 @@
 				<category android:name="android.intent.category.BROWSABLE"></category>
 				<category android:name="android.intent.category.DEFAULT"></category>
 				<data android:scheme="oauth"></data>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.INSERT"></action>
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth.provider" />
 			</intent-filter>
 		</activity>
 

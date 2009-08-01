@@ -192,6 +192,7 @@ public class OAuthActivity extends Activity {
 		@Override
 		protected void onPostExecute(Void v) {
 			ContentValues values = new ContentValues(8);
+			
 			values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_SECRET, tokenSecret);
 			values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_TOKEN, token);
 			values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_TOKEN_URL, accessTokenURL);

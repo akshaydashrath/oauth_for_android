@@ -81,6 +81,9 @@ public final class OAuth {
         
         /**
          * The consumer secret for a specific application
+         * 
+         * TODO Big security risk here!!!!
+         * 
          * <P>Type: TEXT</P>
          */
         public static final String CONSUMER_SECRET = "consumer_secret";
