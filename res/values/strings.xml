@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">hum</string>
-    <string name="app_name">OAuth</string>
+	<string
+		name="hello">hum</string>
+	<string
+		name="app_name">OAuth</string>
+
+	<!-- permission definition -->
+	<string
+		name="permlab_oauth">access OAuth autentication information</string>
+	<string
+		name="permdesc_oauth">Allows the application access data about authentication and
+		authorization.</string>
+
 </resources>

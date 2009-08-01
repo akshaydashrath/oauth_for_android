@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.http.client.protocol.RequestAddCookies;
-
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
@@ -14,7 +12,10 @@ import net.oauth.OAuthServiceProvider;
 import net.oauth.client.OAuthClient;
 import net.oauth.client.httpclient4.HttpClient4;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -37,6 +38,9 @@ public class OAuthActivity extends Activity {
 	private String				token;
 	private String				tokenSecret;
 
+	private String				packageName;
+	private String				appName;
+
 	private OAuthAccessor		accessor;
 
 	// This is launched by the callback
@@ -54,9 +58,6 @@ public class OAuthActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Log.i(TAG, "create: " + consumerKey);
-
 		String action = getIntent().getAction();
 
 		if (action.compareTo(Intent.ACTION_INSERT) == 0) {
@@ -66,42 +67,12 @@ public class OAuthActivity extends Activity {
 			requestTokenURL = bundle.getString("requestTokenURL");
 			accessTokenURL = bundle.getString("accessTokenURL");
 			authorizeURL = bundle.getString("authorizeURL");
+			packageName = bundle.getString("packageName");
+			appName = bundle.getString("appName");
 		}
 		ArrayList<Map.Entry<String, String>> tmp = new ArrayList<Map.Entry<String, String>>();
 		tmp.add(new OAuth.Parameter("perms", "delete"));
 		new RequestTokenRetrievalTask().execute(tmp);
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		Log.i(TAG, "onStop " + consumerKey + getIntent().toString());
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		Log.i(TAG, "onPause " + consumerKey + getIntent().toString());
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Log.i(TAG, "resume " + consumerKey + getIntent().toString());
-	}
-
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		Log.i(TAG, "rest " + consumerKey + getIntent().toString());
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		// Save away the original text, so we still have it if the activity
-		// needs to be killed while paused.
-		// outState.putString(ORIGINAL_CONTENT, mOriginalContent);
-		Log.i(TAG, "on save " + consumerKey + getIntent().toString());
 	}
 
 	private class RequestTokenRetrievalTask extends AsyncTask<Collection<? extends Entry<String, String>>, Void, Uri> {
@@ -116,11 +87,13 @@ public class OAuthActivity extends Activity {
 			try {
 				if (params.length == 1) {
 					client.getRequestToken(accessor, "GET", toOAuthParams(params[0]));
-					url = accessor.consumer.serviceProvider.userAuthorizationURL + "?oauth_token=" + accessor.requestToken + "&oauth_callback=" + consumer.callbackURL + "&"
+					url = accessor.consumer.serviceProvider.userAuthorizationURL + "?oauth_token="
+							+ accessor.requestToken + "&oauth_callback=" + consumer.callbackURL + "&"
 							+ toParams(params[0]);
 				} else {
 					client.getRequestToken(accessor, "GET");
-					url = accessor.consumer.serviceProvider.userAuthorizationURL + "?oauth_token=" + accessor.requestToken + "&oauth_callback=" + consumer.callbackURL;
+					url = accessor.consumer.serviceProvider.userAuthorizationURL + "?oauth_token="
+							+ accessor.requestToken + "&oauth_callback=" + consumer.callbackURL;
 				}
 			} catch (Exception e) {
 				Log.e(TAG, "Could not get authorize token from " + requestTokenURL + " " + e.getMessage());
@@ -161,7 +134,8 @@ public class OAuthActivity extends Activity {
 				// open a browser window to handle authorisation
 				startActivity(new Intent(Intent.ACTION_VIEW).setData(authUrl));
 			} else {
-				Toast toast = Toast.makeText(OAuthActivity.this, "hum something went wrong, can not get token", Toast.LENGTH_LONG);
+				Toast toast = Toast.makeText(OAuthActivity.this, "hum something went wrong, can not get token",
+						Toast.LENGTH_LONG);
 				toast.setGravity(Gravity.CENTER, 0, 0);
 				toast.show();
 			}
@@ -192,7 +166,7 @@ public class OAuthActivity extends Activity {
 		@Override
 		protected void onPostExecute(Void v) {
 			ContentValues values = new ContentValues(8);
-			
+
 			values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_SECRET, tokenSecret);
 			values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_TOKEN, token);
 			values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_TOKEN_URL, accessTokenURL);
@@ -200,8 +174,14 @@ public class OAuthActivity extends Activity {
 			values.put(com.novoda.oauth.provider.OAuth.Providers.CONSUMER_KEY, consumerKey);
 			values.put(com.novoda.oauth.provider.OAuth.Providers.CONSUMER_SECRET, consumerSecret);
 			values.put(com.novoda.oauth.provider.OAuth.Providers.REQUEST_TOKEN_URL, requestTokenURL);
+			values.put(com.novoda.oauth.provider.OAuth.Providers.APP_NAME, appName);
+			values.put(com.novoda.oauth.provider.OAuth.Providers.PACKAGE_NAME, packageName);
 
-			Uri uri = OAuthActivity.this.getContentResolver().insert(com.novoda.oauth.provider.OAuth.Providers.CONTENT_URI, values);
+			Uri uri = OAuthActivity.this.getContentResolver().insert(
+					com.novoda.oauth.provider.OAuth.Providers.CONTENT_URI, values);
+
+			OAuthActivity.this.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
 			if (uri != null) {
 				Intent intent = new Intent();
 				intent.putExtra("uri", uri);

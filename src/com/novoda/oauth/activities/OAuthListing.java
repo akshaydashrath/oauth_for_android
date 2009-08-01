@@ -2,6 +2,7 @@ package com.novoda.oauth.activities;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
@@ -22,6 +23,8 @@ public class OAuthListing extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.grantUriPermission("com.novoda.oauth", Providers.CONTENT_URI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+				| Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		cursor = managedQuery(OAuth.Providers.CONTENT_URI, projection, null, null, null);
 		setListAdapter(new OAuthListAdapater(this, cursor));
 	}

@@ -101,6 +101,18 @@ public final class OAuth {
         public static final String ACCESS_SECRET = "access_secret";
         
         /**
+         * The access token secret
+         * <P>Type: TEXT</P>
+         */
+        public static final String PACKAGE_NAME = "package_name";
+        
+        /**
+         * The access token secret
+         * <P>Type: TEXT</P>
+         */
+        public static final String APP_NAME = "app_name";
+        
+        /**
          * The timestamp for when the provider was created
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
