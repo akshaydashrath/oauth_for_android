@@ -81,15 +81,12 @@ public final class OAuth {
         
         /**
          * The consumer secret for a specific application
+         * 
+         * TODO Big security risk here!!!!
+         * 
          * <P>Type: TEXT</P>
          */
         public static final String CONSUMER_SECRET = "consumer_secret";
-        
-        /**
-         * The request token - should be deleted upon activation
-         * <P>Type: TEXT</P>
-         */
-        public static final String REQUEST_TOKEN = "request_token";
         
         /**
          * The access token
@@ -102,6 +99,18 @@ public final class OAuth {
          * <P>Type: TEXT</P>
          */
         public static final String ACCESS_SECRET = "access_secret";
+        
+        /**
+         * The access token secret
+         * <P>Type: TEXT</P>
+         */
+        public static final String PACKAGE_NAME = "package_name";
+        
+        /**
+         * The access token secret
+         * <P>Type: TEXT</P>
+         */
+        public static final String APP_NAME = "app_name";
         
         /**
          * The timestamp for when the provider was created

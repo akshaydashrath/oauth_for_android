@@ -4,15 +4,94 @@
 	package="com.novoda.oauth"
 	android:versionCode="1"
 	android:versionName="1.0">
+
+	<permission
+		android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION"
+		android:label="@string/permlab_oauth"
+		android:description="@string/permdesc_oauth"
+		android:protectionLevel="dangerous" />
+
 	<application
 		android:icon="@drawable/icon"
 		android:label="@string/app_name">
+
 		<provider
 			android:name=".provider.OAuthProvider"
+			android:grantUriPermissions="true"
+			android:permission="com.novoda.oauth.ACCESS_OAUTH_INFORMATION"
 			android:authorities="com.novoda.oauth.provider.OAuth" />
 
+		<activity
+			android:name=".activities.OAuthListing">
+			<intent-filter>
+				<action
+					android:name="android.intent.action.MAIN" />
+				<category
+					android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+			<intent-filter>
+				<action
+					android:name="android.intent.action.VIEW" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
+			</intent-filter>
+		</activity>
+
+		<activity
+			android:name=".activities.OAuthActivity"
+			android:launchMode="singleTask">
+			<intent-filter>
+				<action
+					android:name="android.intent.action.VIEW"></action>
+				<category
+					android:name="android.intent.category.BROWSABLE"></category>
+				<category
+					android:name="android.intent.category.DEFAULT"></category>
+				<data
+					android:scheme="oauth"></data>
+			</intent-filter>
+			<intent-filter>
+				<action
+					android:name="android.intent.action.INSERT"></action>
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
+			</intent-filter>
+		</activity>
+
+		<activity-alias
+			android:name=".activities.OAuth"
+			android:targetActivity=".activities.OAuthActivity">
+			<!-- Insert a new value -->
+			<intent-filter>
+				<action
+					android:name="android.intent.action.INSERT"></action>
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.dir/vnd.novoda" />
+			</intent-filter>
+		</activity-alias>
+
+		<!-- Registering all application's so they can access their URI -->
+		<receiver
+			android:name="com.novoda.oauth.receiver.RegisterURIPermissions">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+			</intent-filter>
+		</receiver>
 
 	</application>
+	<uses-permission
+		android:name="android.permission.INTERNET" />
+	<uses-permission
+		android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission
+		android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION" />
+
 	<uses-sdk
 		android:minSdkVersion="3" />
 </manifest> 
