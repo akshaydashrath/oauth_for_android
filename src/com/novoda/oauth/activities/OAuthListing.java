@@ -1,7 +1,10 @@
 package com.novoda.oauth.activities;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -11,33 +14,88 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.novoda.oauth.R;
 import com.novoda.oauth.provider.OAuth;
 import com.novoda.oauth.provider.OAuth.Providers;
 
-public class OAuthListing extends ListActivity {
+public class OAuthListing extends ListActivity implements OnItemLongClickListener {
+	private static final String	TAG	= "OAuth:";
+
+	private Cursor				cursor;
+	private PackageManager		manager;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.grantUriPermission("com.novoda.oauth", Providers.CONTENT_URI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-				| Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		setContentView(R.layout.oauth_list_activity);
+		manager = getPackageManager();
 		cursor = managedQuery(OAuth.Providers.CONTENT_URI, projection, null, null, null);
 		setListAdapter(new OAuthListAdapater(this, cursor));
+
+		getListView().setOnItemLongClickListener(this);
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Cursor tmp = getContentResolver().query(ContentUris.withAppendedId(Providers.CONTENT_URI, (int) id),
+				projection, null, null, null);
+		if (tmp.moveToFirst()) {
+			String packageName = cursor.getString(2);
+			manager = getPackageManager();
+			try {
+				Intent intent = manager.getLaunchIntentForPackage(packageName);
+				Log.d(TAG, "launching: " + intent.toString() + " for " + packageName);
+				startActivity(intent);
+			} catch (NameNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		if (tmp != null)
+			tmp.close();
+	}
+
+	private int	current;
+
+	public boolean onItemLongClick(AdapterView<?> adapter, View view, int position, long id) {
+		current = (int) id;
+		new AlertDialog.Builder(this).setTitle(R.string.alert_dialog_delete_title).setMessage(
+				R.string.alert_dialog_delete).setPositiveButton(android.R.string.ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						Uri uri = ContentUris.withAppendedId(Providers.CONTENT_URI, current);
+						Log.i(TAG, "deleting: " + uri);
+						getContentResolver().delete(uri, null, null);
+					}
+				}).setNegativeButton(android.R.string.cancel, null).create().show();
+		return true;
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.i(TAG, "in the main: " + getIntent().toString());
 	}
 
 	private class OAuthListAdapater extends CursorAdapter {
 
 		private static final String	TAG	= "OAuth:";
 
-		private PackageManager		manager;
-
 		public OAuthListAdapater(Context context, Cursor c) {
 			super(context, c);
 			manager = context.getPackageManager();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return super.getItemId(position);
 		}
 
 		@Override
@@ -78,6 +136,4 @@ public class OAuthListing extends ListActivity {
 			Providers._ID, "app_name", "package_name", Providers.ACCESS_TOKEN_URL, Providers.CONSUMER_KEY,
 			Providers.ACCESS_TOKEN, Providers.ACCESS_SECRET, Providers.CREATED_DATE, Providers.MODIFIED_DATE
 								};
-
-	private Cursor	cursor;
 }

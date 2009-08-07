@@ -2,14 +2,31 @@
 <resources>
 	<string
 		name="hello">hum</string>
+		
 	<string
 		name="app_name">OAuth</string>
+		
+	<string
+		name="browser_redirect">Please login and allow the application via your browser.</string>
+
+	<string
+		name="alert_dialog_delete_title">Do you wish to delete this access?</string>
+		
+	<string
+		name="no_oauth">You don't have any application accessing OAuth yet!</string>
+
+	<string
+		name="alert_dialog_delete">The application will
+		not be able to access the OAuth information
+		anymore. This does not ensure the application will not be able to
+		access the server.</string>
 
 	<!-- permission definition -->
 	<string
 		name="permlab_oauth">access OAuth autentication information</string>
 	<string
-		name="permdesc_oauth">Allows the application access data about authentication and
+		name="permdesc_oauth">Allows the application access data about
+		authentication and
 		authorization.</string>
 
 </resources>

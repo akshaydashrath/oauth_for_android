@@ -2,4 +2,5 @@
 <resources>
     <string name="hello">Hello World!</string>
     <string name="app_name">OAuthTest</string>
+    <string name="example_1">TwitterTest</string>
 </resources>

@@ -3,12 +3,15 @@ package com.novoda.oauth.activities;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import com.novoda.oauth.R;
+
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthServiceProvider;
 import net.oauth.client.OAuthClient;
 import net.oauth.client.httpclient4.HttpClient4;
+
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -17,15 +20,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.novoda.oauth.R;
-
 public class OAuthActivity extends Activity {
-	private static final String		TAG			= "OAuth:";
+	private static final String		TAG					= "OAuth:";
+
+	private static final int		BROWSER_ACTIVITY	= 0;
 
 	private String					consumerKey;
 	private String					consumerSecret;
@@ -35,7 +35,7 @@ public class OAuthActivity extends Activity {
 	private String					authorizeURL;
 
 	// Default callback URL
-	private String					callback	= null;
+	private String					callback			= null;
 	// Extra parameters to pass
 	private HashMap<String, String>	parameters;
 
@@ -47,49 +47,30 @@ public class OAuthActivity extends Activity {
 
 	private OAuthAccessor			accessor;
 
-	private WebView					webview;
-
 	// This is launched by the callback
 	protected void onNewIntent(Intent intent) {
-		Log.i(TAG, intent.toString());
 		// Ensure we are called from the browser's callback
 		if (intent.getScheme().contains("oauth")) {
-			Log.d(TAG, "Getting the OAuth Token: " + intent.getScheme());
-			new TokenExchangeTask().execute();
-		} else if (intent.getScheme().contains("http") && intent.getData().getHost().contains("oauth.local")) {
-			Log.d(TAG, "Getting the OAuth Token: " + intent);
+			Log.d(TAG, "Getting the OAuth Token for request tokem: "
+					+ Uri.parse(intent.getDataString()).getQueryParameter(OAuth.OAUTH_TOKEN));
+			finishActivity(BROWSER_ACTIVITY);
 			new TokenExchangeTask().execute();
 		}
 	};
 
-	private class HelloWebViewClient extends WebViewClient {
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			view.loadUrl(url);
-			if (Uri.parse(url).getHost().compareTo("oauth.local") == 0) {
-				new TokenExchangeTask().execute();
-			}
-			return true;
-		}
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.i(TAG, "current intent " + getIntent().toString());
+		Log.i(TAG, "current nb intent " + getInstanceCount());
+		Log.i(TAG, "current task id " + getTaskId());
 
-		@Override
-		public boolean shouldOverrideKeyEvent(WebView view, KeyEvent event) {
-			return false;
-		}
-
-		@Override
-		public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-			super.onReceivedError(view, errorCode, description, failingUrl);
-			Log.i(TAG, "Receive error: " + failingUrl);
-		}
-
-		@Override
-		public void onLoadResource(WebView view, String url) {
-			super.onLoadResource(view, url);
-			if (Uri.parse(url).getHost().compareTo("oauth.local") == 0) {
-				new TokenExchangeTask().execute();
-			}
-		}
+		// if (getIntent().getScheme().contains("oauth")) {
+		// Log.d(TAG, "Getting the OAuth Token: " + getIntent().getScheme());
+		// Log.d(TAG, "Getting the OAuth Token with: " + requestTokenURL);
+		// finishActivity(BROWSER_ACTIVITY);
+		// new TokenExchangeTask().execute();
+		// }
 	}
 
 	@SuppressWarnings("unchecked")
@@ -97,12 +78,10 @@ public class OAuthActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.oauth_activity);
-		webview = (WebView) findViewById(R.id.webview);
-		webview.setWebViewClient(new HelloWebViewClient());
-		webview.getSettings().setJavaScriptEnabled(true);
-
 		String action = getIntent().getAction();
+
+		this.setVisible(false);
+
 		if (action.compareTo(Intent.ACTION_INSERT) == 0) {
 			Bundle bundle = getIntent().getExtras();
 
@@ -171,25 +150,23 @@ public class OAuthActivity extends Activity {
 
 			// saving to DB
 			if (null != authUrl) {
-				Toast toast = Toast.makeText(OAuthActivity.this, "redirecting to browser", Toast.LENGTH_LONG);
+				Toast toast = Toast.makeText(OAuthActivity.this, R.string.browser_redirect, Toast.LENGTH_LONG);
 				toast.setGravity(Gravity.CENTER, 0, 0);
 				toast.show();
 
 				// open a browser window to handle authorisation
-				// startActivity(new
-				// Intent(Intent.ACTION_VIEW).setData(authUrl));
+				startActivity(new Intent(Intent.ACTION_VIEW).setData(authUrl).addFlags(
+						Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
+						| Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+
+				
 				Log.i(TAG, authUrl.toString());
-				webview.loadUrl(authUrl.toString());
 			} else {
 				Toast toast = Toast.makeText(OAuthActivity.this, "hum something went wrong, can not get token",
 						Toast.LENGTH_LONG);
 				toast.setGravity(Gravity.CENTER, 0, 0);
 				toast.show();
 			}
-		}
-
-		@Override
-		protected void onPreExecute() {
 		}
 	}
 
@@ -243,6 +220,7 @@ public class OAuthActivity extends Activity {
 				} else {
 					OAuthActivity.this.setResult(Activity.RESULT_CANCELED);
 				}
+				finish();
 			}
 		}
 

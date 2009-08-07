@@ -143,8 +143,26 @@ public class OAuthProvider extends ContentProvider {
 	}
 
 	@Override
-	public int delete(Uri arg0, String arg1, String[] arg2) {
-		return 0;
+	public int delete(Uri uri, String where, String[] whereArgs) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        int count;
+        switch (sUriMatcher.match(uri)) {
+        case PROVIDERS:
+            count = db.delete(PROVIDER_TABLE_NAME, where, whereArgs);
+            break;
+
+        case PROVIDER_ID:
+            String providerId = uri.getPathSegments().get(1);
+            count = db.delete(PROVIDER_TABLE_NAME, Providers._ID + "=" + providerId
+                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+            break;
+
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
 	}
 
 	@Override
