@@ -1,0 +1,3 @@
+DROP TABLE if EXISTS providers;
+CREATE TABLE providers (_id INTEGER PRIMARY KEY AUTOINCREMENT,access_secret TEXT,access_token TEXT,access_token_url TEXT,authorize_url TEXT,consumer_key TEXT,consumer_secret TEXT,request_token TEXT,request_token_url TEXT,created INTEGER,modified INTEGER);
+INSERT INTO providers (access_secret,access_token,access_token_url,authorize_url,consumer_key,consumer_secret,request_token_url,app_name, package_name, signature,created,modified) VALUES ("c4c3f2e091094f148b99443929ee9a60","13d4748e88fc473e90f6fc832fb86e8c","http://jaikunovoda.appspot.com/api","authorize_url","consumer_key","consumer_secret","http://jaikunovoda.appspot.com/api", "JaikuAndroid", "com.novoda.oauth", "signature", 1, 2);
