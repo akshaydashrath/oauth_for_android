@@ -20,7 +20,8 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Convenience definitions for OAuthProvider
+ * Convenience definitions for OAuthProvider. This contains all the columns for
+ * accessing the OAuth.
  */
 public final class OAuth {
     public static final String AUTHORITY = "com.novoda.oauth.provider.OAuth";
@@ -124,7 +125,7 @@ public final class OAuth {
         public static final String AUTHORIZE_URL = "authorize_url";
 
         /**
-         * The consumer key for a specific application
+         * The consumer key for a specific service.
          * <P>
          * Type: TEXT
          * </P>

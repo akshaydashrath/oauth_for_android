@@ -1,6 +1,7 @@
 bin
 bin/**/*
 gen/
+.settings/
 *.class
 *.dex
 *.apk

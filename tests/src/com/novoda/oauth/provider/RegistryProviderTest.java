@@ -110,7 +110,6 @@ public class RegistryProviderTest extends ProviderTestCase3<OAuthProvider> {
         value.put(Registry.CONSUMER_SECRET, "secret");
         value.put(Registry.URL, "http://twitter.com");
         assertNotNull(mResolver.insert(REGISTRY_URI, value));
-        
     }
 
     /* SQL */
