@@ -58,21 +58,6 @@ public class OAuthActivity extends Activity {
 		}
 	};
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Log.i(TAG, "current intent " + getIntent().toString());
-		Log.i(TAG, "current nb intent " + getInstanceCount());
-		Log.i(TAG, "current task id " + getTaskId());
-
-		// if (getIntent().getScheme().contains("oauth")) {
-		// Log.d(TAG, "Getting the OAuth Token: " + getIntent().getScheme());
-		// Log.d(TAG, "Getting the OAuth Token with: " + requestTokenURL);
-		// finishActivity(BROWSER_ACTIVITY);
-		// new TokenExchangeTask().execute();
-		// }
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -193,18 +178,18 @@ public class OAuthActivity extends Activity {
 			if (b) {
 				ContentValues values = new ContentValues(8);
 
-				values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_SECRET, tokenSecret);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_TOKEN, token);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.ACCESS_TOKEN_URL, accessTokenURL);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.AUTHORIZE_URL, authorizeURL);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.CONSUMER_KEY, consumerKey);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.CONSUMER_SECRET, consumerSecret);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.REQUEST_TOKEN_URL, requestTokenURL);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.APP_NAME, appName);
-				values.put(com.novoda.oauth.provider.OAuth.Providers.PACKAGE_NAME, packageName);
+				values.put(com.novoda.oauth.provider.OAuth.Registry.ACCESS_SECRET, tokenSecret);
+				values.put(com.novoda.oauth.provider.OAuth.Registry.ACCESS_TOKEN, token);
+				values.put(com.novoda.oauth.provider.OAuth.Registry.ACCESS_TOKEN_URL, accessTokenURL);
+				values.put(com.novoda.oauth.provider.OAuth.Registry.AUTHORIZE_URL, authorizeURL);
+				values.put(com.novoda.oauth.provider.OAuth.Registry.CONSUMER_KEY, consumerKey);
+				values.put(com.novoda.oauth.provider.OAuth.Registry.CONSUMER_SECRET, consumerSecret);
+				values.put(com.novoda.oauth.provider.OAuth.Registry.REQUEST_TOKEN_URL, requestTokenURL);
+				//values.put(com.novoda.oauth.provider.OAuth.Registry.APP_NAME, appName);
+				//values.put(com.novoda.oauth.provider.OAuth.Registry.PACKAGE_NAME, packageName);
 
 				Uri uri = OAuthActivity.this.getContentResolver().insert(
-						com.novoda.oauth.provider.OAuth.Providers.CONTENT_URI, values);
+						com.novoda.oauth.provider.OAuth.Registry.CONTENT_URI, values);
 
 				// Granting the package access to the newly created OAuth table.
 				// This is actually quite dangerous as anybody could just take

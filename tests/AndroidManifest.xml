@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.novoda.oauth.tests" android:versionCode="1"
+	package="com.novoda.oauth.tests" 
+	android:versionCode="1"
 	android:versionName="1.0">
-	
-	<application android:icon="@drawable/twitter" android:label="@string/example_1">
+
+	<application android:icon="@drawable/twitter"
+		android:label="@string/example_1">
 		<uses-library android:name="android.test.runner" />
 		<activity android:name=".examples.TwitterTest">
-		
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
-			</intent-filter>
 		</activity>
 	</application>
-	
-	
-	
-	<instrumentation android:name="android.test.InstrumentationTestRunner"
-		android:targetPackage="com.novoda.oauth" android:label="OAuth Tests" />
 
+	<instrumentation 
+		android:name="android.test.InstrumentationTestRunner"
+		android:targetPackage="com.novoda.oauth" 
+		android:label="OAuth Tests" />
+
+	<uses-permission android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION" />
 	<uses-sdk android:minSdkVersion="3" />
 </manifest> 

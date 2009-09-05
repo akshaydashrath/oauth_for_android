@@ -1,7 +1,6 @@
 package com.novoda.oauth;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.os.Bundle;
 
 import java.io.Serializable;
