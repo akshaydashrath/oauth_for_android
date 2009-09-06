@@ -189,10 +189,6 @@ public class OAuthProvider extends ContentProvider {
                         + " ON " + join('.', REGISTRY_TABLE_NAME, Registry._ID) + "="
                         + join('.', CONSUMER_TABLE_NAME, Consumers.REGISTRY_ID));
                 qb.setProjectionMap(sProviderProjectionMap);
-
-                // If the calling application does not have the permission to
-                // read OAuth, only returns the ones it owns and the public
-                // ones.
                 if (!(getContext().checkCallingPermission(
                         "com.novoda.oauth.ACCESS_OAUTH_INFORMATION") == PackageManager.PERMISSION_GRANTED))
                     qb.appendWhere(join('.', CONSUMER_TABLE_NAME, Consumers.IS_SERVICE_PUBLIC)

@@ -61,9 +61,8 @@ public final class OAuth {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.novoda.oauth";
 
         /**
-         * The default sort order for this table
-         * 
-         * TODO extract table name
+         * The default sort order for this table 
+         * TODO work on the table name
          */
         public static final String DEFAULT_SORT_ORDER = "registry.modified DESC";
 

@@ -95,11 +95,11 @@ public abstract class ProviderTestCase3<T extends ContentProvider> extends Andro
         return resolver;
     }
 
-    protected void setPackage(String pck) {
+    public void setPackage(String pck) {
         this.testPackage = pck;
     }
 
-    protected void setSignature(String sig) {
+    public void setSignature(String sig) {
         this.testSignature = sig;
     }
 
