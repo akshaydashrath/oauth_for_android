@@ -62,8 +62,10 @@ public final class OAuth {
 
         /**
          * The default sort order for this table
+         * 
+         * TODO extract table name
          */
-        public static final String DEFAULT_SORT_ORDER = "modified DESC";
+        public static final String DEFAULT_SORT_ORDER = "registry.modified DESC";
 
         /**
          * the common name given to the service (e.g. twitter). Will default to
