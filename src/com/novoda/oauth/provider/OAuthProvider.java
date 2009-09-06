@@ -9,13 +9,17 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Binder;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -28,8 +32,6 @@ public class OAuthProvider extends ContentProvider {
     private static final String REGISTRY_TABLE_NAME = "registry";
 
     public static final String CONSUMER_TABLE_NAME = "consumers";
-
-    public static final String _REGISTRY_CONSUMER = "registry_consumer";
 
     private static final String DATABASE_NAME = "oauth.db";
 
@@ -48,7 +50,6 @@ public class OAuthProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(CREATE_TABLE_REGISTRY);
             db.execSQL(CREATE_TABLE_CONSUMERS);
-            db.execSQL(CREATE_TABLE_REGISTRY_CONSUMER);
         }
 
         @Override
@@ -57,7 +58,6 @@ public class OAuthProvider extends ContentProvider {
                     + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS " + REGISTRY_TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + CONSUMER_TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + _REGISTRY_CONSUMER);
             onCreate(db);
         }
 
@@ -71,17 +71,13 @@ public class OAuthProvider extends ContentProvider {
                 + Registry.CREATED_DATE + " INTEGER," + Registry.MODIFIED_DATE + " INTEGER" + ");";
 
         private static final String CREATE_TABLE_CONSUMERS = "CREATE TABLE " + CONSUMER_TABLE_NAME
-                + " (" + Consumers._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," 
-                + Consumers.APP_NAME + " TEXT,"
-                + Consumers.PACKAGE_NAME + " TEXT," 
+                + " (" + Consumers._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + Consumers.APP_NAME
+                + " TEXT," + Consumers.IS_AUTHORISED + " BOOLEAN," + Consumers.IS_BANNED
+                + " BOOLEAN," + Consumers.IS_SERVICE_PUBLIC + " BOOLEAN,"
+                + Consumers.OWNS_CONSUMER_KEY + " BOOLEAN," + Consumers.REGISTRY_ID + " INTEGER,"
+                + Consumers.SIGNATURE + " BLOB," + Consumers.PACKAGE_NAME + " TEXT,"
+                + Consumers.CREATED_DATE + " INTEGER," + Consumers.MODIFIED_DATE + " INTEGER,"
                 + Consumers.ICON + " TEXT);";
-
-        private static final String CREATE_TABLE_REGISTRY_CONSUMER = "CREATE TABLE "
-                + _REGISTRY_CONSUMER + " ( fk_registry_id INTEGER NOT NULL REFERENCES "
-                + REGISTRY_TABLE_NAME + " (" + Registry._ID
-                + ") , fk_consumer_id INTEGER NOT NULL REFERENCES " + CONSUMER_TABLE_NAME + " ("
-                + Consumers._ID
-                + "), authorized BOOLEAN, PRIMARY KEY (fk_registry_id, fk_consumer_id));";
 
         // TODO creating triggers for the FK and logging
         // private static final String CREATE_TRIGGERS = "";
@@ -122,7 +118,6 @@ public class OAuthProvider extends ContentProvider {
 
         Long now = Long.valueOf(System.currentTimeMillis());
 
-        // values.put(Registry.PACKAGE_NAME, getContext().getPackageName());
         values.put(OAuth.Registry.CREATED_DATE, now);
         values.put(OAuth.Registry.MODIFIED_DATE, now);
 
@@ -132,13 +127,23 @@ public class OAuthProvider extends ContentProvider {
         }
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        long rowId = db.insert(REGISTRY_TABLE_NAME, "", values);
-        if (rowId > 0) {
-            Uri noteUri = ContentUris.withAppendedId(Registry.CONTENT_URI, rowId);
-            getContext().getContentResolver().notifyChange(noteUri, null);
-            return noteUri;
+
+        db.beginTransaction();
+        Uri noteUri = null;
+        try {
+            long rowId = db.insert(REGISTRY_TABLE_NAME, "", values);
+            if (rowId > 0) {
+                noteUri = ContentUris.withAppendedId(Registry.CONTENT_URI, rowId);
+                getContext().getContentResolver().notifyChange(noteUri, null);
+            }
+            db.insert(CONSUMER_TABLE_NAME, "", createConsumer(rowId, false));
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
 
+        if (noteUri != null)
+            return noteUri;
         // TODO
         Log
                 .e(
@@ -147,14 +152,50 @@ public class OAuthProvider extends ContentProvider {
         throw new SQLException("Failed to insert row into " + uri);
     }
 
+    private ContentValues createConsumer(long regid, boolean isPublic) {
+        // getting the signature
+        PackageManager manager = getContext().getPackageManager();
+        String packageName = manager.getPackagesForUid(Binder.getCallingUid())[0];
+        PackageInfo pinfo = null;
+        Signature si = null;
+        try {
+            pinfo = manager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            si = pinfo.signatures[0];
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(Consumers.PACKAGE_NAME, getContext().getPackageName());
+        values.put(Consumers.IS_AUTHORISED, 1);
+        values.put(Consumers.REGISTRY_ID, regid);
+        values.put(Consumers.IS_SERVICE_PUBLIC, isPublic);
+        values.put(Consumers.SIGNATURE, si.toByteArray());
+        values.put(Consumers.OWNS_CONSUMER_KEY, 1);
+
+        Long now = Long.valueOf(System.currentTimeMillis());
+        values.put(Consumers.CREATED_DATE, now);
+        values.put(Consumers.MODIFIED_DATE, now);
+        return values;
+    }
+
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         switch (sUriMatcher.match(uri)) {
             case REGISTRY:
-                qb.setTables(REGISTRY_TABLE_NAME);
+                qb.setTables(REGISTRY_TABLE_NAME + " LEFT OUTER JOIN " + CONSUMER_TABLE_NAME
+                        + " ON " + join('.', REGISTRY_TABLE_NAME, Registry._ID) + "="
+                        + join('.', CONSUMER_TABLE_NAME, Consumers.REGISTRY_ID));
                 qb.setProjectionMap(sProviderProjectionMap);
+                if (!(getContext().checkCallingPermission(
+                        "com.novoda.oauth.ACCESS_OAUTH_INFORMATION") == PackageManager.PERMISSION_GRANTED))
+                    qb.appendWhere(join('.', CONSUMER_TABLE_NAME, Consumers.IS_SERVICE_PUBLIC)
+                            + "=1 OR "
+                            + join('.', CONSUMER_TABLE_NAME, Consumers.OWNS_CONSUMER_KEY)
+                            + "=1 AND " + join('.', CONSUMER_TABLE_NAME, Consumers.PACKAGE_NAME)
+                            + "=\"" + getContext().getPackageName() + "\"");
                 break;
 
             case REGISTRY_ID:
@@ -253,19 +294,36 @@ public class OAuthProvider extends ContentProvider {
         sUriMatcher.addURI(OAuth.AUTHORITY, "registry/#", REGISTRY_ID);
 
         sProviderProjectionMap = new HashMap<String, String>();
-        sProviderProjectionMap.put(Registry._ID, Registry._ID);
-        sProviderProjectionMap.put(Registry.ACCESS_SECRET, Registry.ACCESS_SECRET);
-        sProviderProjectionMap.put(Registry.ACCESS_TOKEN, Registry.ACCESS_TOKEN);
-        sProviderProjectionMap.put(Registry.ACCESS_TOKEN_URL, Registry.ACCESS_TOKEN_URL);
-        sProviderProjectionMap.put(Registry.AUTHORIZE_URL, Registry.AUTHORIZE_URL);
-        sProviderProjectionMap.put(Registry.CONSUMER_KEY, Registry.CONSUMER_KEY);
-        sProviderProjectionMap.put(Registry.CONSUMER_SECRET, Registry.CONSUMER_SECRET);
-        sProviderProjectionMap.put(Registry.REQUEST_TOKEN_URL, Registry.REQUEST_TOKEN_URL);
-        sProviderProjectionMap.put(Registry.NAME, Registry.NAME);
-        sProviderProjectionMap.put(Registry.ICON, Registry.ICON);
-        sProviderProjectionMap.put(Registry.DESCRIPTION, Registry.DESCRIPTION);
-        sProviderProjectionMap.put(Registry.URL, Registry.URL);
-        sProviderProjectionMap.put(Registry.CREATED_DATE, Registry.CREATED_DATE);
-        sProviderProjectionMap.put(Registry.MODIFIED_DATE, Registry.MODIFIED_DATE);
+        sProviderProjectionMap.put(Registry._ID, join('.', REGISTRY_TABLE_NAME, Registry._ID));
+        sProviderProjectionMap.put(Registry.ACCESS_SECRET, join('.', REGISTRY_TABLE_NAME,
+                Registry.ACCESS_SECRET));
+        sProviderProjectionMap.put(Registry.ACCESS_TOKEN, join('.', REGISTRY_TABLE_NAME,
+                Registry.ACCESS_TOKEN));
+        sProviderProjectionMap.put(Registry.ACCESS_TOKEN_URL, join('.', REGISTRY_TABLE_NAME,
+                Registry.ACCESS_TOKEN_URL));
+        sProviderProjectionMap.put(Registry.AUTHORIZE_URL, join('.', REGISTRY_TABLE_NAME,
+                Registry.AUTHORIZE_URL));
+        sProviderProjectionMap.put(Registry.CONSUMER_KEY, join('.', REGISTRY_TABLE_NAME,
+                Registry.CONSUMER_KEY));
+        sProviderProjectionMap.put(Registry.CONSUMER_SECRET, join('.', REGISTRY_TABLE_NAME,
+                Registry.CONSUMER_SECRET));
+        sProviderProjectionMap.put(Registry.REQUEST_TOKEN_URL, join('.', REGISTRY_TABLE_NAME,
+                Registry.REQUEST_TOKEN_URL));
+        sProviderProjectionMap.put(Registry.NAME, join('.', REGISTRY_TABLE_NAME, Registry.NAME));
+        sProviderProjectionMap.put(Registry.ICON, join('.', REGISTRY_TABLE_NAME, Registry.ICON));
+        sProviderProjectionMap.put(Registry.DESCRIPTION, join('.', REGISTRY_TABLE_NAME,
+                Registry.DESCRIPTION));
+        sProviderProjectionMap.put(Registry.URL, join('.', REGISTRY_TABLE_NAME, Registry.URL));
+        sProviderProjectionMap.put(Registry.CREATED_DATE, join('.', REGISTRY_TABLE_NAME,
+                Registry.CREATED_DATE));
+        sProviderProjectionMap.put(Registry.MODIFIED_DATE, join('.', REGISTRY_TABLE_NAME,
+                Registry.MODIFIED_DATE));
+    }
+
+    private static String join(char c, String... strings) {
+        StringBuffer buf = new StringBuffer();
+        for (String arg : strings)
+            buf.append(arg).append(c);
+        return buf.deleteCharAt(buf.length() - 1).toString();
     }
 }

@@ -61,9 +61,10 @@ public final class OAuth {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.novoda.oauth";
 
         /**
-         * The default sort order for this table
+         * The default sort order for this table 
+         * TODO work on the table name
          */
-        public static final String DEFAULT_SORT_ORDER = "modified DESC";
+        public static final String DEFAULT_SORT_ORDER = "registry.modified DESC";
 
         /**
          * the common name given to the service (e.g. twitter). Will default to

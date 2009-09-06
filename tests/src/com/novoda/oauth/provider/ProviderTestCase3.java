@@ -4,12 +4,16 @@ package com.novoda.oauth.provider;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.database.DatabaseUtils;
 import android.test.AndroidTestCase;
 import android.test.IsolatedContext;
 import android.test.RenamingDelegatingContext;
 import android.test.mock.MockContentResolver;
 import android.test.mock.MockContext;
+import android.test.mock.MockPackageManager;
 
 public abstract class ProviderTestCase3<T extends ContentProvider> extends AndroidTestCase {
 
@@ -22,6 +26,10 @@ public abstract class ProviderTestCase3<T extends ContentProvider> extends Andro
     private MockContentResolver mResolver;
 
     private String testPackage;
+
+    private String testSignature;
+
+    private boolean hasPermission;
 
     public ProviderTestCase3(Class<T> providerClass, String providerAuthority) {
         mProviderClass = providerClass;
@@ -42,12 +50,13 @@ public abstract class ProviderTestCase3<T extends ContentProvider> extends Andro
         super.setUp();
 
         testPackage = getContext().getPackageName();
+        testSignature = "test123";
 
         mResolver = new MockContentResolver();
         final String filenamePrefix = "test.";
         RenamingDelegatingContext targetContextWrapper = new RenamingDelegatingContext(
                 new MockContext(), // The context that most methods are
-                                   // delegated to
+                // delegated to
                 getContext(), // The context that file methods are delegated to
                 filenamePrefix);
         mProviderContext = new MyIsolatedContext(mResolver, targetContextWrapper);
@@ -73,7 +82,7 @@ public abstract class ProviderTestCase3<T extends ContentProvider> extends Andro
         MockContentResolver resolver = new MockContentResolver();
         RenamingDelegatingContext targetContextWrapper = new RenamingDelegatingContext(
                 new MockContext(), // The context that most methods are
-                                   // delegated to
+                // delegated to
                 targetContext, // The context that file methods are delegated to
                 filenamePrefix);
         Context context = new IsolatedContext(resolver, targetContextWrapper);
@@ -86,8 +95,16 @@ public abstract class ProviderTestCase3<T extends ContentProvider> extends Andro
         return resolver;
     }
 
-    public String setPackage(String pck) {
-        return this.testPackage = pck;
+    public void setPackage(String pck) {
+        this.testPackage = pck;
+    }
+
+    public void setSignature(String sig) {
+        this.testSignature = sig;
+    }
+
+    protected void setPermission(boolean permission) {
+        this.hasPermission = permission;
     }
 
     private class MyIsolatedContext extends IsolatedContext {
@@ -98,6 +115,39 @@ public abstract class ProviderTestCase3<T extends ContentProvider> extends Andro
         @Override
         public String getPackageName() {
             return testPackage;
+        }
+
+        @Override
+        public PackageManager getPackageManager() {
+            return new MyPckManager();
+        }
+
+        @Override
+        public int checkCallingPermission(String permission) {
+            if (hasPermission)
+                return PackageManager.PERMISSION_GRANTED;
+            else
+                return PackageManager.PERMISSION_DENIED;
+        }
+    }
+
+    private class MyPckManager extends MockPackageManager {
+        @Override
+        public String[] getPackagesForUid(int uid) {
+            return new String[] {
+                testPackage
+            };
+        }
+
+        @Override
+        public PackageInfo getPackageInfo(String packageName, int flags)
+                throws NameNotFoundException {
+
+            PackageInfo info = new PackageInfo();
+            info.signatures = new Signature[] {
+                new Signature(testSignature)
+            };
+            return info;
         }
     }
 }
