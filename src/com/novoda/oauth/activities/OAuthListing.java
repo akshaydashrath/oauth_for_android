@@ -68,7 +68,6 @@ public class OAuthListing extends ExpandableListActivity {
         @Override
         public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                 int childPosition, long id) {
-            Log.i(TAG, "child clicked");
             return false;
         }
     }
@@ -76,7 +75,6 @@ public class OAuthListing extends ExpandableListActivity {
     private class RegistryOnClickListener implements ExpandableListView.OnGroupClickListener {
         @Override
         public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-            Log.i(TAG, v.getTag() + " this is ist");
             if (v.getTag() == null) {
                 Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, id);
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri); 

@@ -105,9 +105,21 @@
 			</intent-filter>
 		</activity>
 
-		<activiy
-			android:name=".activities.OAuthListingNonAuthorized">
-		</activiy>
+		<!-- Just for the icons... -->
+		<activity-alias
+			android:name="TwitterIcon"
+			android:icon="@drawable/twitter"
+			android:targetActivity=".activities.OAuthItemViewActivity" />
+
+		<activity-alias
+			android:name="JaikuIcon"
+			android:icon="@drawable/jaiku"
+			android:targetActivity=".activities.OAuthItemViewActivity" />
+
+		<activity-alias
+			android:name="FireEagleIcon"
+			android:icon="@drawable/fireeagle"
+			android:targetActivity=".activities.OAuthItemViewActivity" />
 
 		<!-- Registering all application's so they can access their URI -->
 		<receiver

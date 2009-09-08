@@ -61,8 +61,7 @@ public final class OAuth {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.novoda.oauth";
 
         /**
-         * The default sort order for this table 
-         * TODO work on the table name
+         * The default sort order for this table TODO work on the table name
          */
         public static final String DEFAULT_SORT_ORDER = "registry.modified DESC";
 
@@ -222,6 +221,16 @@ public final class OAuth {
         public static final String APP_NAME = "app_name";
 
         /**
+         * The activity the consumer which to be launched when the user clicks
+         * on the consumer from within the OAuth application. This will also
+         * define the logo given.
+         * <P>
+         * Type: TEXT
+         * </P>
+         */
+        public static final String ACTIVITY = "activity";
+
+        /**
          * The _id of the row in the registry against which this application is
          * querying.
          * <P>
@@ -298,6 +307,9 @@ public final class OAuth {
          */
         public static final String MODIFIED_DATE = "modified";
 
+        /**
+         * The default sort order for this table TODO work on the table name
+         */
         public static final String DEFAULT_SORT_ORDER = "consumers.modified DESC";;
     }
 }

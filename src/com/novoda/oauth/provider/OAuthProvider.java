@@ -71,9 +71,9 @@ public class OAuthProvider extends ContentProvider {
                 + Registry.CREATED_DATE + " INTEGER," + Registry.MODIFIED_DATE + " INTEGER" + ");";
 
         private static final String CREATE_TABLE_CONSUMERS = "CREATE TABLE " + CONSUMER_TABLE_NAME
-                + " (" + Consumers._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + Consumers.APP_NAME
-                + " TEXT," + Consumers.IS_AUTHORISED + " BOOLEAN," + Consumers.IS_BANNED
-                + " BOOLEAN," + Consumers.IS_SERVICE_PUBLIC + " BOOLEAN,"
+                + " (" + Consumers._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + Consumers.ACTIVITY
+                + " TEXT," + Consumers.APP_NAME + " TEXT," + Consumers.IS_AUTHORISED + " BOOLEAN,"
+                + Consumers.IS_BANNED + " BOOLEAN," + Consumers.IS_SERVICE_PUBLIC + " BOOLEAN,"
                 + Consumers.OWNS_CONSUMER_KEY + " BOOLEAN," + Consumers.REGISTRY_ID + " INTEGER,"
                 + Consumers.SIGNATURE + " BLOB," + Consumers.PACKAGE_NAME + " TEXT,"
                 + Consumers.CREATED_DATE + " INTEGER," + Consumers.MODIFIED_DATE + " INTEGER,"
@@ -122,6 +122,8 @@ public class OAuthProvider extends ContentProvider {
                     "Not enought data: consumer key, consumer secret, all 3 OAuth URLs are required: "
                             + values.toString());
 
+        String activity = values.getAsString(Consumers.ACTIVITY);
+        values.remove(Consumers.ACTIVITY);
         Long now = Long.valueOf(System.currentTimeMillis());
 
         values.put(OAuth.Registry.CREATED_DATE, now);
@@ -142,7 +144,8 @@ public class OAuthProvider extends ContentProvider {
                 noteUri = ContentUris.withAppendedId(Registry.CONTENT_URI, rowId);
                 getContext().getContentResolver().notifyChange(noteUri, null);
             }
-            db.insert(CONSUMER_TABLE_NAME, "", createConsumer(rowId, false));
+            db.insert(CONSUMER_TABLE_NAME, "", createConsumer(rowId, false, activity));
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -150,6 +153,7 @@ public class OAuthProvider extends ContentProvider {
 
         if (noteUri != null)
             return noteUri;
+
         // TODO
         Log
                 .e(
@@ -158,7 +162,7 @@ public class OAuthProvider extends ContentProvider {
         throw new SQLException("Failed to insert row into " + uri);
     }
 
-    private ContentValues createConsumer(long regid, boolean isPublic) {
+    private ContentValues createConsumer(long regid, boolean isPublic, String activity) {
         // getting the signature
         PackageManager manager = getContext().getPackageManager();
         String packageName = manager.getPackagesForUid(Binder.getCallingUid())[0];
@@ -172,6 +176,7 @@ public class OAuthProvider extends ContentProvider {
         }
 
         ContentValues values = new ContentValues();
+        values.put(Consumers.ACTIVITY, activity);
         values.put(Consumers.PACKAGE_NAME, getContext().getPackageName());
         values.put(Consumers.IS_AUTHORISED, 1);
         values.put(Consumers.REGISTRY_ID, regid);
@@ -206,9 +211,10 @@ public class OAuthProvider extends ContentProvider {
                 break;
 
             case REGISTRY_ID:
-                qb.setTables(REGISTRY_TABLE_NAME);
+                qb.setTables(REGISTRY_TABLE_NAME + "," + CONSUMER_TABLE_NAME);
                 qb.setProjectionMap(sRegistryProjectionMap);
-                qb.appendWhere(Registry._ID + "=" + uri.getPathSegments().get(1));
+                qb.appendWhere(sRegistryProjectionMap.get(Registry._ID) + "="
+                        + uri.getPathSegments().get(1));
                 break;
 
             case CONSUMERS:
@@ -327,8 +333,16 @@ public class OAuthProvider extends ContentProvider {
         sRegistryProjectionMap.put(Registry.MODIFIED_DATE, join('.', REGISTRY_TABLE_NAME,
                 Registry.MODIFIED_DATE));
 
+        // hum
+        sRegistryProjectionMap.put(Consumers.ACTIVITY, join('.', CONSUMER_TABLE_NAME,
+                Consumers.ACTIVITY));
+        sRegistryProjectionMap.put(Consumers.PACKAGE_NAME, join('.', CONSUMER_TABLE_NAME,
+                Consumers.PACKAGE_NAME));
+
         sConsumerProjectionMap = new HashMap<String, String>();
         sConsumerProjectionMap.put(Consumers._ID, join('.', CONSUMER_TABLE_NAME, Consumers._ID));
+        sConsumerProjectionMap.put(Consumers.ACTIVITY, join('.', CONSUMER_TABLE_NAME,
+                Consumers.ACTIVITY));
         sConsumerProjectionMap.put(Consumers.APP_NAME, join('.', CONSUMER_TABLE_NAME,
                 Consumers.APP_NAME));
         sConsumerProjectionMap.put(Consumers.IS_AUTHORISED, join('.', CONSUMER_TABLE_NAME,
@@ -345,6 +359,10 @@ public class OAuthProvider extends ContentProvider {
                 Consumers.REGISTRY_ID));
         sConsumerProjectionMap.put(Consumers.SIGNATURE, join('.', CONSUMER_TABLE_NAME,
                 Consumers.SIGNATURE));
+        sRegistryProjectionMap.put(Consumers.CREATED_DATE, join('.', REGISTRY_TABLE_NAME,
+                Consumers.CREATED_DATE));
+        sRegistryProjectionMap.put(Consumers.MODIFIED_DATE, join('.', REGISTRY_TABLE_NAME,
+                Consumers.MODIFIED_DATE));
 
     }
 
