@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.novoda.oauth"
 	android:versionCode="1"
 	android:versionName="1.0">
@@ -12,31 +13,39 @@
 		to ensure security. Currently we only check against the package name
 		which is not secure at all.
 	-->
-	<permission 
+	<permission
 		android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION"
-		android:label="@string/permlab_oauth" 
+		android:label="@string/permlab_oauth"
 		android:description="@string/permdesc_oauth"
 		android:protectionLevel="dangerous" />
 
-	<application android:icon="@drawable/icon" android:label="@string/app_name">
+	<application
+		android:icon="@drawable/icon"
+		android:label="@string/app_name">
 
 		<!-- provider containing all OAuth information -->
-		<provider 
+		<provider
 			android:name=".provider.OAuthProvider"
 			android:grantUriPermissions="true"
 			android:permission="com.novoda.oauth.ACCESS_OAUTH_INFORMATION"
 			android:authorities="com.novoda.oauth.provider.OAuth" />
 
 		<!-- landing activity which list all OAuth installed applications -->
-		<activity android:name=".activities.OAuthListing">
+		<activity
+			android:name=".activities.OAuthListing">
 			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
+				<action
+					android:name="android.intent.action.MAIN" />
+				<category
+					android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
+				<action
+					android:name="android.intent.action.VIEW" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
 			</intent-filter>
 		</activity>
 
@@ -44,19 +53,27 @@
 			This is the meat of OAuth. It permits the Authorisation and
 			activation process.
 		-->
-		<activity android:name=".activities.OAuthActivity"
-			android:permission="android.permission.INTERNET" 
+		<activity
+			android:name=".activities.OAuthActivity"
+			android:permission="android.permission.INTERNET"
 			android:launchMode="singleTask">
 			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:scheme="oauth" />
+				<action
+					android:name="android.intent.action.VIEW" />
+				<category
+					android:name="android.intent.category.BROWSABLE" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:scheme="oauth" />
 			</intent-filter>
 			<intent-filter>
-				<action android:name="android.intent.action.INSERT" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
+				<action
+					android:name="android.intent.action.INSERT" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
 			</intent-filter>
 		</activity>
 
@@ -65,31 +82,55 @@
 			activity if you don't want to hassle with OAuth for actual end point
 			calls.
 		-->
-		<activity android:name=".activities.OAuthCallActivity"
+		<activity
+			android:name=".activities.OAuthCallActivity"
 			android:permission="android.permission.INTERNET">
 			<intent-filter>
-				<action android:name="com.novoda.oauth.action.OAUTH_CALL" />
-				<category android:name="android.intent.category.DEFAULT" />
+				<action
+					android:name="com.novoda.oauth.action.OAUTH_CALL" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 		</activity>
 
+		<activity
+			android:name=".activities.OAuthItemViewActivity">
+			<intent-filter>
+				<action
+					android:name="android.intent.action.VIEW" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.item/vnd.novoda.oauth" />
+			</intent-filter>
+		</activity>
+
+		<activiy
+			android:name=".activities.OAuthListingNonAuthorized">
+		</activiy>
 
 		<!-- Registering all application's so they can access their URI -->
-		<receiver android:name="com.novoda.oauth.receiver.RegisterURIPermissions">
+		<receiver
+			android:name="com.novoda.oauth.receiver.RegisterURIPermissions">
 			<intent-filter>
-				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<action
+					android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
 	</application>
 
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission
+		android:name="android.permission.INTERNET" />
+	<uses-permission
+		android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 	<!--
 		We add our own permission so we can access the provider through our
 		package. No other application should directly use this permission.
 	-->
-	<uses-permission android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION" />
+	<uses-permission
+		android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION" />
 
-	<uses-sdk android:minSdkVersion="3" />
+	<uses-sdk
+		android:minSdkVersion="3" />
 </manifest> 

@@ -5,8 +5,32 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
+	<TextView
+		android:id="@+id/result_header"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="2dip"
+		android:paddingBottom="2dip"
+		android:paddingLeft="5dip"
+		style="?android:attr/listSeparatorTextViewStyle"
+		android:text="Authorized keys:" />
+
 	<ListView
 		android:id="@id/android:list"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent" />		
+
+	<TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="2dip"
+		android:paddingBottom="2dip"
+		android:paddingLeft="5dip"
+		style="?android:attr/listSeparatorTextViewStyle"
+		android:text="Non authorized yet:" />
+
+	<ListView
+		android:id="@+id/notauthorized"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent" />
 

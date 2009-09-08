@@ -297,5 +297,7 @@ public final class OAuth {
          * </P>
          */
         public static final String MODIFIED_DATE = "modified";
+
+        public static final String DEFAULT_SORT_ORDER = "consumers.modified DESC";;
     }
 }

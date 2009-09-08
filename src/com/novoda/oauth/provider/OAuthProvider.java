@@ -87,9 +87,15 @@ public class OAuthProvider extends ContentProvider {
 
     private static final int REGISTRY_ID = 1;
 
+    private static final int CONSUMERS = 2;
+
+    private static final int CONSUMER_ID = 3;
+
     private static UriMatcher sUriMatcher;
 
-    private static HashMap<String, String> sProviderProjectionMap;
+    private static HashMap<String, String> sRegistryProjectionMap;
+
+    private static HashMap<String, String> sConsumerProjectionMap;
 
     private DatabaseHelper mOpenHelper;
 
@@ -182,13 +188,14 @@ public class OAuthProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
+        String orderBy;
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         switch (sUriMatcher.match(uri)) {
             case REGISTRY:
                 qb.setTables(REGISTRY_TABLE_NAME + " LEFT OUTER JOIN " + CONSUMER_TABLE_NAME
                         + " ON " + join('.', REGISTRY_TABLE_NAME, Registry._ID) + "="
                         + join('.', CONSUMER_TABLE_NAME, Consumers.REGISTRY_ID));
-                qb.setProjectionMap(sProviderProjectionMap);
+                qb.setProjectionMap(sRegistryProjectionMap);
                 if (!(getContext().checkCallingPermission(
                         "com.novoda.oauth.ACCESS_OAUTH_INFORMATION") == PackageManager.PERMISSION_GRANTED))
                     qb.appendWhere(join('.', CONSUMER_TABLE_NAME, Consumers.IS_SERVICE_PUBLIC)
@@ -200,8 +207,19 @@ public class OAuthProvider extends ContentProvider {
 
             case REGISTRY_ID:
                 qb.setTables(REGISTRY_TABLE_NAME);
-                qb.setProjectionMap(sProviderProjectionMap);
+                qb.setProjectionMap(sRegistryProjectionMap);
                 qb.appendWhere(Registry._ID + "=" + uri.getPathSegments().get(1));
+                break;
+
+            case CONSUMERS:
+                qb.setTables(CONSUMER_TABLE_NAME);
+                qb.setProjectionMap(sConsumerProjectionMap);
+                qb.appendWhere(Consumers.REGISTRY_ID + "=" + uri.getPathSegments().get(1));
+                if (TextUtils.isEmpty(sortOrder)) {
+                    sortOrder = Consumers.DEFAULT_SORT_ORDER;
+                } else {
+                    orderBy = sortOrder;
+                }
                 break;
 
             default:
@@ -209,7 +227,6 @@ public class OAuthProvider extends ContentProvider {
         }
 
         // If no sort order is specified use the default
-        String orderBy;
         if (TextUtils.isEmpty(sortOrder)) {
             orderBy = OAuth.Registry.DEFAULT_SORT_ORDER;
         } else {
@@ -218,18 +235,7 @@ public class OAuthProvider extends ContentProvider {
 
         // Get the database and run the query
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-
-        // if
-        // (getContext().checkCallingPermission("com.novoda.oauth.ACCESS_OAUTH_INFORMATION")
-        // == PackageManager.PERMISSION_GRANTED) {
-        // Cursor c = qb.query(db, projection, selection, selectionArgs, null,
-        // null, orderBy);
-        // }
-
-        Log.i(TAG, getContext().getPackageName());
-
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
-
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -292,32 +298,54 @@ public class OAuthProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(OAuth.AUTHORITY, "registry", REGISTRY);
         sUriMatcher.addURI(OAuth.AUTHORITY, "registry/#", REGISTRY_ID);
+        sUriMatcher.addURI(OAuth.AUTHORITY, "registry/#/consumers", CONSUMERS);
+        sUriMatcher.addURI(OAuth.AUTHORITY, "registry/#/consumers/#", CONSUMER_ID);
 
-        sProviderProjectionMap = new HashMap<String, String>();
-        sProviderProjectionMap.put(Registry._ID, join('.', REGISTRY_TABLE_NAME, Registry._ID));
-        sProviderProjectionMap.put(Registry.ACCESS_SECRET, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap = new HashMap<String, String>();
+        sRegistryProjectionMap.put(Registry._ID, join('.', REGISTRY_TABLE_NAME, Registry._ID));
+        sRegistryProjectionMap.put(Registry.ACCESS_SECRET, join('.', REGISTRY_TABLE_NAME,
                 Registry.ACCESS_SECRET));
-        sProviderProjectionMap.put(Registry.ACCESS_TOKEN, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.ACCESS_TOKEN, join('.', REGISTRY_TABLE_NAME,
                 Registry.ACCESS_TOKEN));
-        sProviderProjectionMap.put(Registry.ACCESS_TOKEN_URL, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.ACCESS_TOKEN_URL, join('.', REGISTRY_TABLE_NAME,
                 Registry.ACCESS_TOKEN_URL));
-        sProviderProjectionMap.put(Registry.AUTHORIZE_URL, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.AUTHORIZE_URL, join('.', REGISTRY_TABLE_NAME,
                 Registry.AUTHORIZE_URL));
-        sProviderProjectionMap.put(Registry.CONSUMER_KEY, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.CONSUMER_KEY, join('.', REGISTRY_TABLE_NAME,
                 Registry.CONSUMER_KEY));
-        sProviderProjectionMap.put(Registry.CONSUMER_SECRET, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.CONSUMER_SECRET, join('.', REGISTRY_TABLE_NAME,
                 Registry.CONSUMER_SECRET));
-        sProviderProjectionMap.put(Registry.REQUEST_TOKEN_URL, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.REQUEST_TOKEN_URL, join('.', REGISTRY_TABLE_NAME,
                 Registry.REQUEST_TOKEN_URL));
-        sProviderProjectionMap.put(Registry.NAME, join('.', REGISTRY_TABLE_NAME, Registry.NAME));
-        sProviderProjectionMap.put(Registry.ICON, join('.', REGISTRY_TABLE_NAME, Registry.ICON));
-        sProviderProjectionMap.put(Registry.DESCRIPTION, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.NAME, join('.', REGISTRY_TABLE_NAME, Registry.NAME));
+        sRegistryProjectionMap.put(Registry.ICON, join('.', REGISTRY_TABLE_NAME, Registry.ICON));
+        sRegistryProjectionMap.put(Registry.DESCRIPTION, join('.', REGISTRY_TABLE_NAME,
                 Registry.DESCRIPTION));
-        sProviderProjectionMap.put(Registry.URL, join('.', REGISTRY_TABLE_NAME, Registry.URL));
-        sProviderProjectionMap.put(Registry.CREATED_DATE, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.URL, join('.', REGISTRY_TABLE_NAME, Registry.URL));
+        sRegistryProjectionMap.put(Registry.CREATED_DATE, join('.', REGISTRY_TABLE_NAME,
                 Registry.CREATED_DATE));
-        sProviderProjectionMap.put(Registry.MODIFIED_DATE, join('.', REGISTRY_TABLE_NAME,
+        sRegistryProjectionMap.put(Registry.MODIFIED_DATE, join('.', REGISTRY_TABLE_NAME,
                 Registry.MODIFIED_DATE));
+
+        sConsumerProjectionMap = new HashMap<String, String>();
+        sConsumerProjectionMap.put(Consumers._ID, join('.', CONSUMER_TABLE_NAME, Consumers._ID));
+        sConsumerProjectionMap.put(Consumers.APP_NAME, join('.', CONSUMER_TABLE_NAME,
+                Consumers.APP_NAME));
+        sConsumerProjectionMap.put(Consumers.IS_AUTHORISED, join('.', CONSUMER_TABLE_NAME,
+                Consumers.IS_AUTHORISED));
+        sConsumerProjectionMap.put(Consumers.IS_BANNED, join('.', CONSUMER_TABLE_NAME,
+                Consumers.IS_BANNED));
+        sConsumerProjectionMap.put(Consumers.IS_SERVICE_PUBLIC, join('.', CONSUMER_TABLE_NAME,
+                Consumers.IS_SERVICE_PUBLIC));
+        sConsumerProjectionMap.put(Consumers.OWNS_CONSUMER_KEY, join('.', CONSUMER_TABLE_NAME,
+                Consumers.OWNS_CONSUMER_KEY));
+        sConsumerProjectionMap.put(Consumers.PACKAGE_NAME, join('.', CONSUMER_TABLE_NAME,
+                Consumers.PACKAGE_NAME));
+        sConsumerProjectionMap.put(Consumers.REGISTRY_ID, join('.', CONSUMER_TABLE_NAME,
+                Consumers.REGISTRY_ID));
+        sConsumerProjectionMap.put(Consumers.SIGNATURE, join('.', CONSUMER_TABLE_NAME,
+                Consumers.SIGNATURE));
+
     }
 
     private static String join(char c, String... strings) {

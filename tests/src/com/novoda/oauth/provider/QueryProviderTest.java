@@ -21,6 +21,12 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
 
     private static final Uri REGISTRY_URI = Registry.CONTENT_URI;
 
+    private static final Uri AUTHORIZED_URI = Registry.CONTENT_URI.buildUpon()
+            .appendQueryParameter("authorized", "true").build();
+
+    private static final Uri ALL_CONSUMERS_FOR_FIRST_REGISTRY = Registry.CONTENT_URI.buildUpon()
+            .appendEncodedPath("1/consumers").build();
+
     private static final String PACKAGE_UNDER_TEST = "com.mytest.package";
 
     private static final String SIGNATURE_FOR_PACKAGE = "sig1";
@@ -74,8 +80,8 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
         // should only return the owned and public ones... (e.g. not 6 but 2 for
         // the owned one and 1 for the public)
         assertEquals(3, cur.getCount());
+        cur.close();
     }
-
 
     public void testShouldReturnAllIfPermissionMet() throws Exception {
         standardInsert();
@@ -85,6 +91,7 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
         }, null, null, null);
         assertNotNull(cur);
         assertEquals(6, cur.getCount());
+        cur.close();
     }
 
     public void testQueryByPackage() throws Exception {
@@ -97,6 +104,43 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
 
     public void testBannedAppShouldNeverReturn() throws Exception {
         // TODO
+    }
+
+    public void testQueryForAuthorizedApp() throws Exception {
+        standardInsert();
+        setPermission(true);
+        Cursor cur = mResolver.query(AUTHORIZED_URI, new String[] {
+            "_id"
+        }, Registry.ACCESS_TOKEN + "!=?", new String[] {
+            "NULL"
+        }, null);
+        assertNotNull(cur);
+        assertEquals(4, cur.getCount());
+        cur.close();
+    }
+
+    public void testQueryForAuthorizedAppWithoutPerm() throws Exception {
+        standardInsert();
+        setPackage(PACKAGE_UNDER_TEST);
+        setPermission(false);
+        Cursor cur = mResolver.query(AUTHORIZED_URI, new String[] {
+            "_id"
+        }, Registry.ACCESS_TOKEN + "!=?", new String[] {
+            "NULL"
+        }, null);
+        assertNotNull(cur);
+        assertEquals(1, cur.getCount());
+        cur.close();
+    }
+
+    public void testQueryAllConsumersForKey() throws Exception {
+        standardInsert();
+        setPermission(true);
+        Cursor cur = mResolver.query(ALL_CONSUMERS_FOR_FIRST_REGISTRY, new String[] {
+            "_id"
+        }, null, null, null);
+        assertEquals(1, cur.getCount());
+
     }
 
     /* SQL */
@@ -123,6 +167,13 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
         return value;
     }
 
+    private ContentValues createRegAuth(String string) {
+        ContentValues value = createReg(string);
+        value.put(Registry.ACCESS_TOKEN, "token");
+        value.put(Registry.ACCESS_SECRET, "secret");
+        return value;
+    }
+
     private ContentValues createConsumer(String packageName, long regId, Signature sig,
             boolean isPublic) {
         ContentValues value = new ContentValues();
@@ -134,21 +185,21 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
         value.put(Consumers.REGISTRY_ID, regId);
         return value;
     }
-    
+
     private void standardInsert() {
         long[] ids = new long[6];
         ids[0] = mDB.insert("registry", "", createReg("test1"));
         ids[1] = mDB.insert("registry", "", createReg("test2"));
-        ids[2] = mDB.insert("registry", "", createReg("test3"));
-        ids[3] = mDB.insert("registry", "", createReg("test4"));
-        ids[4] = mDB.insert("registry", "", createReg("test5"));
-        ids[5] = mDB.insert("registry", "", createReg("test6"));
-        
+        ids[2] = mDB.insert("registry", "", createRegAuth("test3"));
+        ids[3] = mDB.insert("registry", "", createRegAuth("test4"));
+        ids[4] = mDB.insert("registry", "", createRegAuth("test5"));
+        ids[5] = mDB.insert("registry", "", createRegAuth("test6"));
+
         mDB.insert("consumers", "", createConsumer(PACKAGE_UNDER_TEST, 1, new Signature(
                 SIGNATURE_FOR_PACKAGE), true));
         mDB.insert("consumers", "", createConsumer(PACKAGE_UNDER_TEST, 2, new Signature(
                 SIGNATURE_FOR_PACKAGE), true));
-        
+
         mDB.insert("consumers", "", createConsumer(PACKAGE_UNDER_TEST_2, 3, new Signature(
                 SIGNATURE_FOR_PACKAGE_2), true));
         mDB.insert("consumers", "", createConsumer(PACKAGE_UNDER_TEST_2, 4, new Signature(

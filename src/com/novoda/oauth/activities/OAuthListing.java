@@ -3,31 +3,32 @@ package com.novoda.oauth.activities;
 
 import com.novoda.oauth.R;
 import com.novoda.oauth.provider.OAuth;
+import com.novoda.oauth.provider.OAuth.Consumers;
 import com.novoda.oauth.provider.OAuth.Registry;
 
-import android.app.AlertDialog;
-import android.app.ListActivity;
+import org.xmlpull.v1.XmlPullParser;
+
+import android.app.ExpandableListActivity;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.CursorAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.CursorTreeAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemLongClickListener;
 
-public class OAuthListing extends ListActivity implements OnItemLongClickListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class OAuthListing extends ExpandableListActivity {
     private static final String TAG = "OAuth:";
 
     private Cursor cursor;
@@ -37,117 +38,160 @@ public class OAuthListing extends ListActivity implements OnItemLongClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.oauth_list_activity);
+        // setContentView(R.layout.oauth_list_activity);
         manager = getPackageManager();
         cursor = managedQuery(OAuth.Registry.CONTENT_URI, projection, null, null, null);
-        setListAdapter(new OAuthListAdapater(this, cursor));
-        getListView().setOnItemLongClickListener(this);
 
-        ImageView footer = new ImageView(this);
-        footer.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
-        footer.setImageResource(R.drawable.background_50);
-        getListView().addFooterView(footer);
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        Cursor tmp = getContentResolver().query(
-                ContentUris.withAppendedId(Registry.CONTENT_URI, (int)id), projection, null, null,
-                null);
-        if (tmp.moveToFirst()) {
-            String packageName = cursor.getString(2);
-            manager = getPackageManager();
-            try {
-                Intent intent = manager.getLaunchIntentForPackage(packageName);
-                Log.d(TAG, "launching: " + intent.toString() + " for " + packageName);
-                startActivity(intent);
-            } catch (NameNotFoundException e) {
-                e.printStackTrace();
-            }
+        // Check if we have the default values set, if not populate with default
+        // values
+        if (cursor.getCount() == 0) {
+            populateDefault();
+            cursor.requery();
         }
-        if (tmp != null)
-            tmp.close();
-    }
 
-    private int current;
-
-    public boolean onItemLongClick(AdapterView<?> adapter, View view, int position, long id) {
-        current = (int)id;
-        new AlertDialog.Builder(this).setTitle(R.string.alert_dialog_delete_title).setMessage(
-                R.string.alert_dialog_delete).setPositiveButton(android.R.string.ok,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, current);
-                        Log.d(TAG, "deleting: " + uri);
-                        getContentResolver().delete(uri, null, null);
-                    }
-                }).setNegativeButton(android.R.string.cancel, null).create().show();
-        return true;
+        setListAdapter(new AllItemAdapter(cursor, this));
+        getExpandableListView().setOnGroupClickListener(new RegistryOnClickListener());
+        getExpandableListView().setOnChildClickListener(new ConsumerOnClickListener());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "in the main: " + getIntent().toString());
     }
 
-    private class OAuthListAdapater extends CursorAdapter {
+    private void populateDefault() {
+        XmlResourceParser providers = getResources().getXml(R.xml.providers);
+        getContentResolver().bulkInsert(Registry.CONTENT_URI, parseProviders(providers));
+    }
 
-        public OAuthListAdapater(Context context, Cursor c) {
-            super(context, c);
-            manager = context.getPackageManager();
-        }
-
+    private class ConsumerOnClickListener implements ExpandableListView.OnChildClickListener {
         @Override
-        public long getItemId(int position) {
-            return super.getItemId(position);
+        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
+                int childPosition, long id) {
+            Log.i(TAG, "child clicked");
+            return false;
         }
+    }
 
+    private class RegistryOnClickListener implements ExpandableListView.OnGroupClickListener {
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return super.getView(position, convertView, parent);
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            ImageView icon = (ImageView)view.findViewById(R.id.app_icon);
-            TextView appName = (TextView)view.findViewById(R.id.app_name);
-            TextView accessToken = (TextView)view.findViewById(R.id.access_token);
-            TextView requestUrl = (TextView)view.findViewById(R.id.request_url);
-            TextView tokenSecret = (TextView)view.findViewById(R.id.token_secret);
-
-            appName.setText(cursor.getString(1));
-            accessToken.setText(cursor.getString(5));
-
-            requestUrl.setText(Uri.parse(cursor.getString(3)).getHost());
-            tokenSecret.setText(cursor.getString(6));
-
-            try {
-                icon.setBackgroundDrawable(manager.getApplicationIcon(cursor.getString(2)));
-            } catch (NameNotFoundException e) {
-                Log.w(TAG, "can not find icon for package: " + cursor.getString(2));
+        public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+            Log.i(TAG, v.getTag() + " this is ist");
+            if (v.getTag() == null) {
+                Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, id);
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri); 
+                startActivity(intent);
+                return true;
             }
+            return false;
+        }
+    }
 
+    private class AllItemAdapter extends CursorTreeAdapter {
+
+        public AllItemAdapter(Cursor cursor, Context context) {
+            super(cursor, context);
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return View.inflate(context, R.layout.single_provider, null);
+        protected void bindChildView(View view, Context context, Cursor cursor, boolean isExpanded) {
+            TextView url = (TextView)view.findViewById(R.id.url);
+            TextView name = (TextView)view.findViewById(R.id.name);
+            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(Consumers.APP_NAME)));
+            url.setText(cursor.getString(cursor.getColumnIndexOrThrow(Consumers.PACKAGE_NAME)));
         }
 
+        @Override
+        protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
+            view.setTag(cursor.getString(cursor.getColumnIndexOrThrow(Registry.ACCESS_TOKEN)));
+            TextView url = (TextView)view.findViewById(R.id.url);
+            TextView name = (TextView)view.findViewById(R.id.name);
+            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.NAME)));
+            url.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.URL)));
+        }
+
+        @Override
+        protected Cursor getChildrenCursor(Cursor groupCursor) {
+            long regId = groupCursor.getLong(cursor.getColumnIndexOrThrow(Registry._ID));
+            Uri.Builder builder = Registry.CONTENT_URI.buildUpon();
+            ContentUris.appendId(builder, regId);
+            builder.appendEncodedPath("consumers");
+            Uri appperreg = builder.build();
+            return managedQuery(appperreg, consumerProjection, null, null, null);
+        }
+
+        @Override
+        protected View newChildView(Context context, Cursor cursor, boolean isLastChild,
+                ViewGroup parent) {
+            return View.inflate(context, R.layout.oauth_list_item, null);
+        }
+
+        @Override
+        protected View newGroupView(Context context, Cursor cursor, boolean isExpanded,
+                ViewGroup parent) {
+            return View.inflate(context, R.layout.oauth_list_item, null);
+        }
     }
 
     private static String[] projection = {
             Registry._ID, // 0
-            "app_name", // 1
-            "package_name", // 2
-            Registry.ACCESS_TOKEN_URL, // 3
-            Registry.CONSUMER_KEY, // 4
-            Registry.ACCESS_TOKEN, // 5
-            Registry.ACCESS_SECRET, // 6
-            Registry.CREATED_DATE, // 7
-            Registry.MODIFIED_DATE
+            Registry.NAME, // 1
+            Registry.ICON, // 2
+            Registry.URL, // 3
+            Registry.ACCESS_TOKEN
     };
+
+    private static String[] consumerProjection = {
+            Consumers._ID, // 0
+            Consumers.APP_NAME, // 1
+            Consumers.PACKAGE_NAME
+    };
+
+    /*
+     * Parse the default XML for providers value. The XML should have the tag
+     * name similar to the columns' name in the DB
+     */
+    protected ContentValues[] parseProviders(XmlPullParser xpp) {
+        List<ContentValues> ret = new ArrayList<ContentValues>();
+        ContentValues value = new ContentValues();
+        String key = null;
+        String starttag = null;
+        String endtag = null;
+        try {
+            int eventType = xpp.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_DOCUMENT) {
+                } else if (eventType == XmlPullParser.END_DOCUMENT) {
+                } else if (eventType == XmlPullParser.START_TAG) {
+                    starttag = xpp.getName();
+                    if (starttag.compareTo("provider") == 0) {
+                        value.put(Registry.NAME, xpp.getAttributeValue(0));
+                    } else if (starttag.compareTo("providers") == 0) {
+                        // do nothing
+                    } else {
+                        key = starttag;
+                    }
+                } else if (eventType == XmlPullParser.END_TAG) {
+                    endtag = xpp.getName();
+                    if (endtag.compareTo("provider") == 0) {
+                        ret.add(new ContentValues(value));
+                        value.clear();
+                    }
+                } else if (eventType == XmlPullParser.TEXT) {
+                    if (starttag.compareTo("providers") == 0 || starttag.compareTo("provider") == 0) {
+                        // do nothing
+                    } else {
+                        value.put(key, xpp.getText());
+                    }
+                }
+                eventType = xpp.next();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "error parsing: " + e.getMessage());
+            e.printStackTrace();
+        }
+        ContentValues[] array = new ContentValues[ret.size()];
+        ret.toArray(array);
+        return array;
+    }
 }
