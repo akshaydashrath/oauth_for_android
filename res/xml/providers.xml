@@ -5,13 +5,10 @@
 		<url>http://twitter.com</url>
 		<activity>.TwitterIcon</activity>
 		<consumer_key>uiFzdLNX9Hm8NZlgGUzDtQ</consumer_key>
-		<consumer_secret>ZEqiSbUiBCM6t1XWqdrFYOVjvxR7HDeH0LSAA
-		</consumer_secret>
-		<request_token_url>http://twitter.com/oauth/request_token
-		</request_token_url>
-		<access_token_url>http://twitter.com/oauth/access_token
-		</access_token_url>
-		<authorize_url>http://twitter.com/oauth/authorize"</authorize_url>
+		<consumer_secret>ZEqiSbUiBCM6t1XWqdrFYOVjvxR7HDeH0LSAA</consumer_secret>
+		<request_token_url>http://twitter.com/oauth/request_token</request_token_url>
+		<access_token_url>http://twitter.com/oauth/access_token</access_token_url>
+		<authorize_url>http://twitter.com/oauth/authorize</authorize_url>
 		<description>Share and discover what’s happening right now, anywhere in the world.</description>
 	</provider>
 	<provider
@@ -20,10 +17,8 @@
 		<activity>.JaikuIcon</activity>
 		<consumer_key>69d17e98d23141b78f68280d31a2173c</consumer_key>
 		<consumer_secret>b1c7eb4acd22479b992b70f422b512d5</consumer_secret>
-		<request_token_url>http://jaiku.com/api/request_token
-		</request_token_url>
-		<access_token_url>http://jaiku.com/api/access_token
-		</access_token_url>
+		<request_token_url>http://jaiku.com/api/request_token</request_token_url>
+		<access_token_url>http://jaiku.com/api/access_token</access_token_url>
 		<authorize_url>http://jaiku.com/api/authorize</authorize_url>
 		<description>Jaiku's goal is to bring people closer together by	enabling them to have conversations. It offers a way to connect with the people you care about by sharing updates with them on the Web,	IM, and SMS - as well as through third-party applications built by other developers using the Jaiku API.</description>
 	</provider>
@@ -33,12 +28,9 @@
 		<activity>.FireEagleIcon</activity>
 		<consumer_key>RiT6acWHI9wq</consumer_key>
 		<consumer_secret>2Cnr0bGQ0FzEDr88lFu0NDHmZxMQmqvU</consumer_secret>
-		<request_token_url>https://fireeagle.yahooapis.com/oauth/request_token
-		</request_token_url>
-		<access_token_url>https://fireeagle.yahooapis.com/oauth/access_token
-		</access_token_url>
-		<authorize_url>https://fireeagle.yahoo.net/oauth/authorize
-		</authorize_url>
+		<request_token_url>https://fireeagle.yahooapis.com/oauth/request_token</request_token_url>
+		<access_token_url>https://fireeagle.yahooapis.com/oauth/access_token</access_token_url>
+		<authorize_url>https://fireeagle.yahoo.net/oauth/authorize</authorize_url>
 		<description>Fire Eagle is a site that stores information about your location. With your permission, other services and devices can either	update that information or access it. By helping applications respond to your location, Fire Eagle is designed to make the world around you	more interesting! Use your location to power friend-finders, games,	local information services, blog badges and stuff like that...</description>
 	</provider>
 </providers>

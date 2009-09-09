@@ -85,6 +85,7 @@
 		<activity
 			android:name=".activities.OAuthCallActivity"
 			android:permission="android.permission.INTERNET">
+
 			<intent-filter>
 				<action
 					android:name="com.novoda.oauth.action.OAUTH_CALL" />
@@ -94,7 +95,8 @@
 		</activity>
 
 		<activity
-			android:name=".activities.OAuthItemViewActivity">
+			android:name=".activities.OAuthItemViewActivity"
+			android:launchMode="singleTask">
 			<intent-filter>
 				<action
 					android:name="android.intent.action.VIEW" />
@@ -102,6 +104,18 @@
 					android:name="android.intent.category.DEFAULT" />
 				<data
 					android:mimeType="vnd.android.cursor.item/vnd.novoda.oauth" />
+			</intent-filter>
+
+			<!-- callback request -->
+			<intent-filter>
+				<action
+					android:name="android.intent.action.VIEW" />
+				<category
+					android:name="android.intent.category.BROWSABLE" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:scheme="x-oauth-android" />
 			</intent-filter>
 		</activity>
 

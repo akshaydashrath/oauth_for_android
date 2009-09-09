@@ -140,7 +140,25 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
             "_id"
         }, null, null, null);
         assertEquals(1, cur.getCount());
-
+    }
+    
+    public void testShouldReturnOwnersPackageAndActivity() throws Exception {
+        standardInsert();
+        
+        ContentValues values = createReg("regkey123");
+        setPermission(true);
+        setPackage(PACKAGE_UNDER_TEST);
+        values.put(Consumers.ACTIVITY, ".MyActivity");
+        assertNotNull(mResolver.insert(REGISTRY_URI, values));
+        
+        Cursor cur = mResolver.query(REGISTRY_URI, new String[] {
+            Consumers.ACTIVITY, Consumers.PACKAGE_NAME
+        }, Registry.CONSUMER_KEY + "=?" , new String[]{"regkey123"}, null);
+        
+        assertEquals(1, cur.getCount());
+        assertTrue(cur.moveToFirst());
+        assertEquals(PACKAGE_UNDER_TEST, cur.getString(cur.getColumnIndexOrThrow(Consumers.PACKAGE_NAME)));
+        assertEquals(".MyActivity", cur.getString(cur.getColumnIndexOrThrow(Consumers.ACTIVITY)));
     }
 
     /* SQL */

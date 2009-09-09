@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.novoda.oauth.tests" 
+<manifest
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.novoda.oauth.tests"
 	android:versionCode="1"
 	android:versionName="1.0">
-	
-	<instrumentation 
+
+	<application>
+		<uses-library
+			android:name="android.test.runner" />
+	</application>
+
+	<instrumentation
 		android:name="android.test.InstrumentationTestRunner"
-		android:targetPackage="com.novoda.oauth" 
+		android:targetPackage="com.novoda.oauth"
 		android:label="OAuth Tests" />
 
-	<uses-permission android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION" />
-	<uses-sdk android:minSdkVersion="3" />
+	<uses-permission
+		android:name="com.novoda.oauth.ACCESS_OAUTH_INFORMATION" />
+	<uses-sdk
+		android:minSdkVersion="3" />
 </manifest> 

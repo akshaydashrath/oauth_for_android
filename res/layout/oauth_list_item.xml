@@ -13,6 +13,7 @@
         android:layout_height="fill_parent"
         
         android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginRight="6dip"
         
@@ -22,28 +23,32 @@
         android:id="@+id/url"
 
         android:layout_width="fill_parent"
-        android:layout_height="26dip" 
+        android:layout_height="wrap_content" 
         
-        android:layout_toRightOf="@id/icon"
+        android:layout_toLeftOf="@id/icon"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:layout_marginLeft="40dip"
+        android:layout_marginTop="25dip"
         
         android:singleLine="true"
         android:ellipsize="marquee"
-        android:text="Simple application that shows how to use RelativeLayout" />
+        android:text="Simple application that shows how to use RelativeLayout" /> 
 
     <TextView
     	android:id="@+id/name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         
-        android:layout_toRightOf="@id/icon"
+        android:textStyle="bold"
+        
+        android:layout_toLeftOf="@id/icon"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_above="@id/url"
+        android:layout_marginLeft="40dip"
+        
         android:layout_alignWithParentIfMissing="true"
                 
-        android:gravity="center_vertical"
         android:text="My Application" />
 
 </RelativeLayout>

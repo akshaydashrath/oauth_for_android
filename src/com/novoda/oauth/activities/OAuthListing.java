@@ -9,11 +9,13 @@ import com.novoda.oauth.provider.OAuth.Registry;
 import org.xmlpull.v1.XmlPullParser;
 
 import android.app.ExpandableListActivity;
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -77,7 +80,7 @@ public class OAuthListing extends ExpandableListActivity {
         public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
             if (v.getTag() == null) {
                 Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, id);
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri); 
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
                 return true;
             }
@@ -106,6 +109,9 @@ public class OAuthListing extends ExpandableListActivity {
             TextView name = (TextView)view.findViewById(R.id.name);
             name.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.NAME)));
             url.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.URL)));
+            ImageView icon = (ImageView)view.findViewById(R.id.icon);
+            setIcon(icon, cursor.getString(cursor.getColumnIndexOrThrow(Consumers.PACKAGE_NAME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(Consumers.ACTIVITY)));
         }
 
         @Override
@@ -129,20 +135,28 @@ public class OAuthListing extends ExpandableListActivity {
                 ViewGroup parent) {
             return View.inflate(context, R.layout.oauth_list_item, null);
         }
+
+        private void setIcon(ImageView icon, String pck, String activity) {
+            try {
+                icon.setImageDrawable(manager
+                        .getActivityIcon(new ComponentName(pck, pck + activity)));
+                Log.d(TAG, new ComponentName(pck, pck + activity).flattenToShortString());
+            } catch (NameNotFoundException e) {
+                Log.w(TAG, "could not find the icon for the activity: " + e.getMessage());
+                icon.setImageDrawable(manager.getDefaultActivityIcon());
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static String[] projection = {
-            Registry._ID, // 0
-            Registry.NAME, // 1
-            Registry.ICON, // 2
-            Registry.URL, // 3
-            Registry.ACCESS_TOKEN
+            Registry._ID, Registry.NAME, Registry.ICON, Registry.URL, Registry.ACCESS_TOKEN,
+            Consumers.ACTIVITY, Consumers.PACKAGE_NAME
     };
 
     private static String[] consumerProjection = {
-            Consumers._ID, // 0
-            Consumers.APP_NAME, // 1
-            Consumers.PACKAGE_NAME
+            Consumers._ID, Consumers.APP_NAME, Consumers.PACKAGE_NAME
     };
 
     /*

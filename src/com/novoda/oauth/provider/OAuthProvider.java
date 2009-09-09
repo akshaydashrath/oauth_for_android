@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class OAuthProvider extends ContentProvider {
+
     private static final String TAG = "OAuth:";
 
     private static final String REGISTRY_TABLE_NAME = "registry";
@@ -34,6 +35,22 @@ public class OAuthProvider extends ContentProvider {
     public static final String CONSUMER_TABLE_NAME = "consumers";
 
     private static final String DATABASE_NAME = "oauth.db";
+
+    private static final int REGISTRY = 0;
+
+    private static final int REGISTRY_ID = 1;
+
+    private static final int CONSUMERS = 2;
+
+    private static final int CONSUMER_ID = 3;
+
+    private static UriMatcher sUriMatcher;
+
+    private static HashMap<String, String> sRegistryProjectionMap;
+
+    private static HashMap<String, String> sConsumerProjectionMap;
+
+    private DatabaseHelper mOpenHelper;
 
     /**
      * This class helps open, create, and upgrade the database file.
@@ -82,22 +99,6 @@ public class OAuthProvider extends ContentProvider {
         // TODO creating triggers for the FK and logging
         // private static final String CREATE_TRIGGERS = "";
     }
-
-    private static final int REGISTRY = 0;
-
-    private static final int REGISTRY_ID = 1;
-
-    private static final int CONSUMERS = 2;
-
-    private static final int CONSUMER_ID = 3;
-
-    private static UriMatcher sUriMatcher;
-
-    private static HashMap<String, String> sRegistryProjectionMap;
-
-    private static HashMap<String, String> sConsumerProjectionMap;
-
-    private DatabaseHelper mOpenHelper;
 
     @Override
     public boolean onCreate() {
@@ -211,10 +212,13 @@ public class OAuthProvider extends ContentProvider {
                 break;
 
             case REGISTRY_ID:
-                qb.setTables(REGISTRY_TABLE_NAME + "," + CONSUMER_TABLE_NAME);
+                qb.setTables(REGISTRY_TABLE_NAME + " LEFT OUTER JOIN " + CONSUMER_TABLE_NAME
+                        + " ON " + join('.', REGISTRY_TABLE_NAME, Registry._ID) + "="
+                        + join('.', CONSUMER_TABLE_NAME, Consumers.REGISTRY_ID));
                 qb.setProjectionMap(sRegistryProjectionMap);
                 qb.appendWhere(sRegistryProjectionMap.get(Registry._ID) + "="
-                        + uri.getPathSegments().get(1));
+                        + uri.getPathSegments().get(1) + " AND "
+                        + sConsumerProjectionMap.get(Consumers.OWNS_CONSUMER_KEY) + "=1");
                 break;
 
             case CONSUMERS:
@@ -333,7 +337,7 @@ public class OAuthProvider extends ContentProvider {
         sRegistryProjectionMap.put(Registry.MODIFIED_DATE, join('.', REGISTRY_TABLE_NAME,
                 Registry.MODIFIED_DATE));
 
-        // hum
+        // This is mainly for the icons
         sRegistryProjectionMap.put(Consumers.ACTIVITY, join('.', CONSUMER_TABLE_NAME,
                 Consumers.ACTIVITY));
         sRegistryProjectionMap.put(Consumers.PACKAGE_NAME, join('.', CONSUMER_TABLE_NAME,

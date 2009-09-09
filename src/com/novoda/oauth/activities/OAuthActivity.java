@@ -36,6 +36,7 @@ public class OAuthActivity extends Activity {
 
 	// Default callback URL
 	private String					callback			= null;
+	
 	// Extra parameters to pass
 	private HashMap<String, String>	parameters;
 
@@ -51,7 +52,7 @@ public class OAuthActivity extends Activity {
 	protected void onNewIntent(Intent intent) {
 		// Ensure we are called from the browser's callback
 		if (intent.getScheme().contains("oauth")) {
-			Log.d(TAG, "Getting the OAuth Token for request tokem: "
+			Log.d(TAG, "Getting the OAuth Token for request token: "
 					+ Uri.parse(intent.getDataString()).getQueryParameter(OAuth.OAUTH_TOKEN));
 			finishActivity(BROWSER_ACTIVITY);
 			new TokenExchangeTask().execute();
