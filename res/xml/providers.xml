@@ -33,4 +33,28 @@
 		<authorize_url>https://fireeagle.yahoo.net/oauth/authorize</authorize_url>
 		<description>Fire Eagle is a site that stores information about your location. With your permission, other services and devices can either	update that information or access it. By helping applications respond to your location, Fire Eagle is designed to make the world around you	more interesting! Use your location to power friend-finders, games,	local information services, blog badges and stuff like that...</description>
 	</provider>
+	
+	<provider
+		name="BrightKite">
+		<url>http://brightkite.com</url>
+		<activity>.BrightKiteIcon</activity>
+		<consumer_key>duWfPEu7g0pA6qQGbw9g</consumer_key>
+		<consumer_secret>Y0ewA9h1QgKKxzZdinvLOr3KVbKT2Be2irUY7PbcQ5E</consumer_secret>
+		<request_token_url>http://brightkite.com/oauth/request_token</request_token_url>
+		<access_token_url>http://brightkite.com/oauth/access_token</access_token_url>
+		<authorize_url>http://brightkite.com/oauth/authorize</authorize_url>
+		<description>If you're like us, you're tired of the rise of social networks that take away from your real life. Sure, it's great to have a gazillion friends on MySpace, but really, how many of them have you actually met? Brightkite connects people based on the places they visit in the real world. With Brightkite you can see where your friends are, what they're up to, see what's going on around you, and meet real-world friends. Most people who have tried the service understand that Brightkite doesn't really track you, it's up to you to decide how often you "check in", and at what accuracy. On top of that, we have pretty comprehensive privacy controls.</description>
+	</provider>
+	
+	<provider
+		name="JaikuNovoda">
+		<url>http://jaikunovoda.appspot.com/</url>
+		<activity>.FlickrIcon</activity>
+		<consumer_key>6a02c9a8ae584673a7dd26a4bdf7d63e</consumer_key>
+		<consumer_secret>946295dfa48b47c284a32c50e848d7a1</consumer_secret>
+		<request_token_url>http://jaikunovoda.appspot.com/api/request_token</request_token_url>
+		<access_token_url>http://jaikunovoda.appspot.com/api/access_token</access_token_url>
+		<authorize_url>http://jaikunovoda.appspot.com/api/authorize</authorize_url>
+		<description>If you're like us, you're tired of the rise of social networks that take away from your real life. Sure, it's great to have a gazillion friends on MySpace, but really, how many of them have you actually met? Brightkite connects people based on the places they visit in the real world. With Brightkite you can see where your friends are, what they're up to, see what's going on around you, and meet real-world friends. Most people who have tried the service understand that Brightkite doesn't really track you, it's up to you to decide how often you "check in", and at what accuracy. On top of that, we have pretty comprehensive privacy controls.</description>
+	</provider>
 </providers>

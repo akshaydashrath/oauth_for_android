@@ -47,11 +47,7 @@ public class OAuthCallActivity extends Activity implements DialogInterface {
     @Override
     protected void onResume() {
         super.onResume();
-        String selection = "package_name=?";
-        Cursor cursor = getContentResolver().query(OAuth.Registry.CONTENT_URI, projection,
-                selection, new String[] {
-                    packageName
-                }, null);
+        Cursor cursor = getContentResolver().query(getIntent().getData(), projection,null ,null,null);
         if (cursor.moveToFirst()) {
             oauthData.setConsumerKey(cursor.getString(1));
             oauthData.setConsumerSecret(cursor.getString(2));

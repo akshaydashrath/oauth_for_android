@@ -8,6 +8,15 @@
 	<application>
 		<uses-library
 			android:name="android.test.runner" />
+		<activity
+			android:name="ManualTest">
+			<intent-filter>
+				<action
+					android:name="android.intent.action.MAIN" />
+				<category
+					android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
 	</application>
 
 	<instrumentation

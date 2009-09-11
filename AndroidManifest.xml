@@ -96,7 +96,9 @@
 
 		<activity
 			android:name=".activities.OAuthItemViewActivity"
+			android:permission="android.permission.INTERNET"
 			android:launchMode="singleTask">
+
 			<intent-filter>
 				<action
 					android:name="android.intent.action.VIEW" />
@@ -117,12 +119,41 @@
 				<data
 					android:scheme="x-oauth-android" />
 			</intent-filter>
+
+			<!--
+				callback request - hack for services that can't take the above
+				callback schema
+			-->
+			<intent-filter>
+				<action
+					android:name="android.intent.action.VIEW" />
+				<category
+					android:name="android.intent.category.BROWSABLE" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:scheme="http"
+					android:host="novoda.com" />
+			</intent-filter>
+		</activity>
+
+		<activity
+			android:name=".activities.OAuthCallActivity"
+			android:theme="@android:style/Theme.Dialog">
+			<intent-filter>
+				<action
+					android:name="com.novoda.oauth.action.OAUTH_CALL" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.item/vnd.novoda.oauth" />
+			</intent-filter>
 		</activity>
 
 		<!-- Just for the icons... -->
 		<activity-alias
 			android:name="TwitterIcon"
-			android:icon="@drawable/twitter"
+			android:icon="@drawable/twitter_48x48"
 			android:targetActivity=".activities.OAuthItemViewActivity" />
 
 		<activity-alias
@@ -132,8 +163,14 @@
 
 		<activity-alias
 			android:name="FireEagleIcon"
-			android:icon="@drawable/fireeagle"
+			android:icon="@drawable/fireeagle_application_48x48"
 			android:targetActivity=".activities.OAuthItemViewActivity" />
+
+		<activity-alias
+			android:name="BrightKiteIcon"
+			android:icon="@drawable/brightkite_48x48"
+			android:targetActivity=".activities.OAuthItemViewActivity" />
+
 
 		<!-- Registering all application's so they can access their URI -->
 		<receiver

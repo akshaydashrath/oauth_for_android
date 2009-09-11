@@ -15,13 +15,11 @@ import net.oauth.client.httpclient4.HttpClient4;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
+import android.app.TabActivity;
 import android.content.ComponentName;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
@@ -34,12 +32,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.HashMap;
 
-public class OAuthItemViewActivity extends Activity {
+public class OAuthItemViewActivity extends TabActivity {
 
     private static final String TAG = "OAuth:";
 
@@ -68,6 +67,8 @@ public class OAuthItemViewActivity extends Activity {
 
     public String tokenSecret;
 
+    private TabHost mTabHost;
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -81,6 +82,16 @@ public class OAuthItemViewActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_service_view);
 
+        mTabHost = getTabHost();
+
+        mTabHost.addTab(mTabHost.newTabSpec("ll").setIndicator("TAB 1").setContent(R.id.ll));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_test2").setIndicator("TAB 2").setContent(
+                R.id.textview2));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_test3").setIndicator("TAB 3").setContent(
+                R.id.textview3));
+
+        mTabHost.setCurrentTab(0);
+
         manager = getPackageManager();
 
         intent = getIntent();
@@ -89,14 +100,17 @@ public class OAuthItemViewActivity extends Activity {
             return;
         }
 
+        // this is a stupid check TODO change it!
         if (intent.getAction().compareTo(Intent.ACTION_VIEW) == 0 && getIntent().getData() != null) {
+
             cursor = managedQuery(getIntent().getData(), projection, null, null, null);
+
             if (!cursor.moveToFirst())
                 return;
+
             setupUI();
             setupOAuth();
 
-            registerCallBack("android");
         } else {
             finish();
         }
@@ -118,6 +132,7 @@ public class OAuthItemViewActivity extends Activity {
 
         TextView name = (TextView)findViewById(R.id.name);
         name.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.NAME)));
+        setTitle("OAuth > " + cursor.getString(cursor.getColumnIndexOrThrow(Registry.NAME)));
 
         TextView url = (TextView)findViewById(R.id.url);
         url.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.URL)));
@@ -168,28 +183,12 @@ public class OAuthItemViewActivity extends Activity {
         return dialog;
     }
 
-    private void registerCallBack(String scheme) {
-        IntentFilter filter = new IntentFilter();
-        filter.addCategory(Intent.CATEGORY_BROWSABLE);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        filter.addAction(Intent.ACTION_VIEW);
-        filter.addDataScheme(scheme);
-        // registerReceiver(new CallBackReceiver(), filter);
-    }
-
     private static final String[] projection = new String[] {
             Registry.NAME, Registry.ICON, Registry.DESCRIPTION, Registry.URL,
             Registry.CONSUMER_KEY, Registry.CONSUMER_SECRET, Registry.ACCESS_TOKEN_URL,
             Registry.AUTHORIZE_URL, Registry.REQUEST_TOKEN_URL, Consumers.ACTIVITY,
             Consumers.PACKAGE_NAME
     };
-
-    private class CallBackReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, intent.toString());
-        }
-    }
 
     private class RequestTokenRetrievalTask extends AsyncTask<Void, Void, Uri> {
 

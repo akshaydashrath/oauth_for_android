@@ -124,6 +124,7 @@ public class RegistryProviderTest extends ProviderTestCase3<OAuthProvider> {
 
         setPackage(PACKAGE_UNDER_TEST);
         setSignature(SIGNATURE_FOR_PACKAGE);
+
         ContentValues value = new ContentValues();
         value.put(Registry.ACCESS_TOKEN_URL, "http://access");
         value.put(Registry.REQUEST_TOKEN_URL, "http://request");
@@ -132,6 +133,7 @@ public class RegistryProviderTest extends ProviderTestCase3<OAuthProvider> {
         value.put(Registry.CONSUMER_SECRET, "secret");
         value.put(Registry.URL, "http://twitter.com");
         assertNotNull(mResolver.insert(REGISTRY_URI, value));
+
         Cursor cur = mDB.rawQuery("SELECT "
                 + join(Consumers.PACKAGE_NAME, Consumers.IS_SERVICE_PUBLIC,
                         Consumers.OWNS_CONSUMER_KEY, Consumers.REGISTRY_ID, Consumers.SIGNATURE)
@@ -142,6 +144,36 @@ public class RegistryProviderTest extends ProviderTestCase3<OAuthProvider> {
         assertEquals(1, cur.getInt(2));
         assertEquals(1, cur.getInt(3));
         assertEquals(new Signature(SIGNATURE_FOR_PACKAGE), new Signature(cur.getBlob(4)));
+        cur.close();
+    }
+
+    public void testShouldUpdateCorrectly() throws Exception {
+        setPackage(PACKAGE_UNDER_TEST);
+        setSignature(SIGNATURE_FOR_PACKAGE);
+
+        ContentValues value = new ContentValues();
+        value.put(Registry.ACCESS_TOKEN_URL, "http://access");
+        value.put(Registry.REQUEST_TOKEN_URL, "http://request");
+        value.put(Registry.AUTHORIZE_URL, "http://authorize");
+        value.put(Registry.CONSUMER_KEY, "key");
+        value.put(Registry.CONSUMER_SECRET, "secret123");
+        value.put(Registry.URL, "http://twitter.com");
+
+        Uri uri = mResolver.insert(REGISTRY_URI, value);
+        assertNotNull(uri);
+
+        value.clear();
+        value.put(Registry.ACCESS_SECRET, "mysec");
+        value.put(Registry.ACCESS_TOKEN, "mytok");
+        assertEquals(1, mResolver.update(uri, value, null, null));
+
+        Cursor cur = mResolver.query(uri, new String[] {
+                Registry.ACCESS_SECRET, Registry.ACCESS_TOKEN
+        }, null, null, null);
+        
+        assertTrue(cur.moveToFirst());
+        assertEquals("mysec", cur.getString(cur.getColumnIndexOrThrow(Registry.ACCESS_SECRET)));
+        assertEquals("mytok", cur.getString(cur.getColumnIndexOrThrow(Registry.ACCESS_TOKEN)));
         cur.close();
     }
 

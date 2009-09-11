@@ -140,7 +140,6 @@ public class OAuthListing extends ExpandableListActivity {
             try {
                 icon.setImageDrawable(manager
                         .getActivityIcon(new ComponentName(pck, pck + activity)));
-                Log.d(TAG, new ComponentName(pck, pck + activity).flattenToShortString());
             } catch (NameNotFoundException e) {
                 Log.w(TAG, "could not find the icon for the activity: " + e.getMessage());
                 icon.setImageDrawable(manager.getDefaultActivityIcon());

@@ -251,8 +251,25 @@ public class OAuthProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        int count;
+        switch (sUriMatcher.match(uri)) {
+            case REGISTRY:
+                count = db.update(REGISTRY_TABLE_NAME, values, where, whereArgs);
+                break;
+
+            case REGISTRY_ID:
+                String regId = uri.getPathSegments().get(1);
+                count = db.update(REGISTRY_TABLE_NAME, values, Registry._ID + "=" + regId
+                        + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
     @Override
