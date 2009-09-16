@@ -310,6 +310,19 @@ public final class OAuth {
         /**
          * The default sort order for this table TODO work on the table name
          */
-        public static final String DEFAULT_SORT_ORDER = "consumers.modified DESC";;
+        public static final String DEFAULT_SORT_ORDER = "consumers.modified DESC";
+
+        /**
+         * The MIME type of {@link #CONTENT_URI} providing a directory of OAuth
+         * providers.
+         */
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.novoda.oauth.consumer";
+
+        /**
+         * The MIME type of a {@link #CONTENT_URI} sub-directory of a single
+         * OAuth provider.
+         */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.novoda.oauth.consumer";
+
     }
 }

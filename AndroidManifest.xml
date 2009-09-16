@@ -49,6 +49,19 @@
 			</intent-filter>
 		</activity>
 
+		<!-- List activity for all consumers given a OAuth registry -->
+		<activity
+			android:name=".activities.ConsumerListing">
+			<intent-filter>
+				<action
+					android:name="android.intent.action.VIEW" />
+				<category
+					android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth.consumer" />
+			</intent-filter>
+		</activity>
+
 		<!--
 			This is the meat of OAuth. It permits the Authorisation and
 			activation process.
@@ -138,8 +151,7 @@
 		</activity>
 
 		<activity
-			android:name=".activities.OAuthCallActivity"
-			android:theme="@android:style/Theme.Dialog">
+			android:name=".activities.OAuthCallActivity">
 			<intent-filter>
 				<action
 					android:name="com.novoda.oauth.action.OAUTH_CALL" />
@@ -169,6 +181,11 @@
 		<activity-alias
 			android:name="BrightKiteIcon"
 			android:icon="@drawable/brightkite_48x48"
+			android:targetActivity=".activities.OAuthItemViewActivity" />
+			
+		<activity-alias
+			android:name="MySpaceIcon"
+			android:icon="@drawable/myspace_48x48"
 			android:targetActivity=".activities.OAuthItemViewActivity" />
 
 

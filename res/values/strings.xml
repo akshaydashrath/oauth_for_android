@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string
+		name="authorise_application">Do you wish to authorise</string>
+	<string
 		name="hello">hum</string>
-		
+
 	<string
 		name="app_name">OAuth</string>
-		
+
 	<string
 		name="browser_redirect">Please login and allow the application via your browser.</string>
 
 	<string
 		name="alert_dialog_delete_title">Do you wish to delete this access?</string>
-		
+
 	<string
 		name="no_oauth">You don't have any application accessing OAuth yet!</string>
 
@@ -20,6 +22,10 @@
 		not be able to access the OAuth information
 		anymore. This does not ensure the application will not be able to
 		access the server.</string>
+
+	<string
+		name="token_request_message">Do you allow this application to access your OAuth information?
+	</string>
 
 	<!-- permission definition -->
 	<string

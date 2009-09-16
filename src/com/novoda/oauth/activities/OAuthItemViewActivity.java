@@ -49,6 +49,8 @@ public class OAuthItemViewActivity extends TabActivity {
     private PackageManager manager;
 
     // OAuth Stuff
+    private static final String CALLBACK = "x-oauth-android://callback";
+
     private String consumerKey;
 
     private String consumerSecret;
@@ -74,7 +76,7 @@ public class OAuthItemViewActivity extends TabActivity {
         super.onNewIntent(intent);
         Log.d(TAG, intent.toString());
         TokenExchangeTask task = new TokenExchangeTask();
-        task.execute(null);
+        task.execute();
     }
 
     @Override
@@ -82,13 +84,23 @@ public class OAuthItemViewActivity extends TabActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_service_view);
 
+        Intent viewConsumers = new Intent(Intent.ACTION_VIEW, getIntent().getData().buildUpon()
+                .appendEncodedPath("consumers").build());
+
         mTabHost = getTabHost();
 
-        mTabHost.addTab(mTabHost.newTabSpec("ll").setIndicator("TAB 1").setContent(R.id.ll));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_test2").setIndicator("TAB 2").setContent(
-                R.id.textview2));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_test3").setIndicator("TAB 3").setContent(
-                R.id.textview3));
+        mTabHost.addTab(mTabHost.newTabSpec("info").setIndicator("",
+                getResources().getDrawable(android.R.drawable.ic_menu_info_details)).setContent(
+                R.id.ll));
+
+        mTabHost.addTab(mTabHost.newTabSpec("consumers").setIndicator("",
+                getResources().getDrawable(android.R.drawable.ic_menu_share)).setContent(
+                viewConsumers));
+
+        // TODO logs tab which will contain all the logs for this service
+        // mTabHost.addTab(mTabHost.newTabSpec("logs").setIndicator("",
+        // getResources().getDrawable(R.drawable.ic_menu_account_list)).setContent(
+        // R.id.textview3));
 
         mTabHost.setCurrentTab(0);
 
@@ -121,8 +133,7 @@ public class OAuthItemViewActivity extends TabActivity {
         String pck = cursor.getString(cursor.getColumnIndexOrThrow(Consumers.PACKAGE_NAME));
         String activity = cursor.getString(cursor.getColumnIndexOrThrow(Consumers.ACTIVITY));
         try {
-            icon.setImageDrawable(manager.getActivityIcon(new ComponentName(pck, pck + activity)));
-            Log.d(TAG, new ComponentName(pck, pck + activity).flattenToShortString());
+            icon.setImageDrawable(manager.getActivityIcon(new ComponentName(pck, activity)));
         } catch (NameNotFoundException e) {
             Log.w(TAG, "could not find the icon for the activity: " + e.getMessage());
             icon.setImageDrawable(manager.getDefaultActivityIcon());
@@ -160,15 +171,15 @@ public class OAuthItemViewActivity extends TabActivity {
 
     private ProgressDialog buildProgressDialog() {
         ProgressDialog dialog = new ProgressDialog(OAuthItemViewActivity.this);
+
         dialog.setTitle("Authorizing");
-        dialog
-                .setMessage("Accessing the remote service for authorization token. After done so, click on OK "
-                        + "which will redirect you to the browser for which you ll need to login and authorize the application.");
+
+        dialog.setMessage(getString(R.string.token_request_message));
+
         dialog.setButton(Dialog.BUTTON_NEGATIVE, "Cancel", new Dialog.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(TAG, "tests cancel");
-
             }
         });
 
@@ -177,7 +188,7 @@ public class OAuthItemViewActivity extends TabActivity {
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(TAG, "tests click");
                 RequestTokenRetrievalTask t = new RequestTokenRetrievalTask();
-                t.execute(null);
+                t.execute();
             }
         });
         return dialog;
@@ -197,15 +208,15 @@ public class OAuthItemViewActivity extends TabActivity {
             String url = null;
             OAuthServiceProvider provider = new OAuthServiceProvider(requestTokenURL, authorizeURL,
                     accessTokenURL);
-            OAuthConsumer consumer = new OAuthConsumer("x-oauth-android://callback", consumerKey,
-                    consumerSecret, provider);
+            OAuthConsumer consumer = new OAuthConsumer(CALLBACK, consumerKey, consumerSecret,
+                    provider);
             OAuthClient client = new OAuthClient(new HttpClient4());
             accessor = new OAuthAccessor(consumer);
 
             try {
                 client.getRequestToken(accessor);
                 parameters.put(OAuth.OAUTH_TOKEN, accessor.requestToken);
-                parameters.put(OAuth.OAUTH_CALLBACK, "x-oauth-android://callback");
+                parameters.put(OAuth.OAUTH_CALLBACK, CALLBACK);
                 url = OAuth.addParameters(accessor.consumer.serviceProvider.userAuthorizationURL,
                         parameters.entrySet());
             } catch (Exception e) {
@@ -219,16 +230,10 @@ public class OAuthItemViewActivity extends TabActivity {
 
         @Override
         protected void onPostExecute(Uri authUrl) {
-
             // saving to DB
             if (null != authUrl) {
                 // open a browser window to handle authorisation
                 startActivity(new Intent(Intent.ACTION_VIEW).setData(authUrl));
-                // .addFlags(
-                // Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-                // | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
-                // | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
-
             } else {
                 Toast toast = Toast.makeText(OAuthItemViewActivity.this,
                         "hum something went wrong, can not get token", Toast.LENGTH_LONG);

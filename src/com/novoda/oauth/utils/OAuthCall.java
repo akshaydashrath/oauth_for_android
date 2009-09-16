@@ -3,6 +3,7 @@ package com.novoda.oauth.utils;
 
 import com.novoda.oauth.OAuthObject;
 
+import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthException;
@@ -11,14 +12,14 @@ import net.oauth.OAuthServiceProvider;
 import net.oauth.client.OAuthClient;
 import net.oauth.client.httpclient4.HttpClient4;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class OAuthCall implements IOAuthCall {
 
+    @SuppressWarnings("unused")
     private static final String TAG = "OAuth:";
 
     private OAuthServiceProvider provider;
@@ -33,12 +34,13 @@ public class OAuthCall implements IOAuthCall {
 
     private Map<String, String> fields;
 
-    public OAuthCall(OAuthObject oauthData, String endpoint,  Map<String, String> fields) {
+    public OAuthCall(OAuthObject oauthData, String endpoint, Map<String, String> fields) {
         this.onCreate(oauthData);
         this.endpoint = endpoint;
-        this.fields = fields;
+        if (fields == null)
+            this.fields = new HashMap<String, String>();
     }
-    
+
     @Override
     public void onCreate(OAuthObject oauthData) {
         provider = new OAuthServiceProvider(oauthData.getRequestTokenURL(), oauthData
@@ -51,14 +53,14 @@ public class OAuthCall implements IOAuthCall {
         accessor.tokenSecret = oauthData.getTokenSecret();
     }
 
-    
-    public OAuthMessage call(){
+    public OAuthMessage call() {
         return call(endpoint, fields);
     }
-    
+
     @Override
     public OAuthMessage call(String url, Map<String, String> fields) {
         try {
+            fields.put(OAuth.OAUTH_TIMESTAMP, "" + System.currentTimeMillis());
             OAuthMessage request = client.invoke(accessor, url, fields.entrySet());
             return request;
         } catch (IOException e) {

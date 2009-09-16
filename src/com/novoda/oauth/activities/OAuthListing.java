@@ -25,11 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
-import android.widget.CursorTreeAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -46,7 +42,7 @@ public class OAuthListing extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setContentView(R.layout.oauth_list_activity);
+
         manager = getPackageManager();
         registry = managedQuery(OAuth.Registry.CONTENT_URI, null, null, null, null);
 
@@ -75,11 +71,9 @@ public class OAuthListing extends ListActivity {
 
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-            if (view.getTag() == null) {
-                Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, id);
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-            }
+            Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, id);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
         }
     }
 

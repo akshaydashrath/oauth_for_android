@@ -108,10 +108,43 @@ public class OAuthProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        if (sUriMatcher.match(uri) != REGISTRY) {
-            throw new IllegalArgumentException("Unknown URI " + uri);
+        switch (sUriMatcher.match(uri)) {
+            case REGISTRY:
+                return insertRegistry(uri, values);
+            case CONSUMERS:
+                return insertConsumer(uri, values);
+        }
+        throw new IllegalArgumentException("Unknown URI " + uri);
+    }
+
+    private Uri insertConsumer(Uri uri, ContentValues values) {
+        // Bare minimum.
+        if (!(values.containsKey(Consumers.PACKAGE_NAME)) || (values == null))
+            throw new IllegalArgumentException("Not enought data:" + values.toString());
+
+        Long now = Long.valueOf(System.currentTimeMillis());
+
+        values.put(Consumers.CREATED_DATE, now);
+        values.put(Consumers.MODIFIED_DATE, now);
+
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
+        Uri consumerUri = null;
+        long rowId = db.insert(CONSUMER_TABLE_NAME, "", values);
+        if (rowId > 0) {
+            consumerUri = ContentUris.withAppendedId(Registry.CONTENT_URI, rowId);
+            getContext().getContentResolver().notifyChange(consumerUri, null);
         }
 
+        if (consumerUri != null)
+            return consumerUri;
+
+        // TODO
+        Log.e(TAG, "can't insert new Consumer key...");
+        throw new SQLException("Failed to insert row into " + uri);
+    }
+
+    private Uri insertRegistry(Uri uri, ContentValues values) {
         // Bare minimum.
         if (!(values.containsKey(Registry.CONSUMER_KEY)
                 && values.containsKey(Registry.ACCESS_TOKEN_URL)
@@ -119,6 +152,7 @@ public class OAuthProvider extends ContentProvider {
                 && values.containsKey(Registry.REQUEST_TOKEN_URL) && values
                 .containsKey(Registry.CONSUMER_SECRET))
                 || (values == null))
+
             throw new IllegalArgumentException(
                     "Not enought data: consumer key, consumer secret, all 3 OAuth URLs are required: "
                             + values.toString());
@@ -156,10 +190,7 @@ public class OAuthProvider extends ContentProvider {
             return noteUri;
 
         // TODO
-        Log
-                .e(
-                        TAG,
-                        "if you intend to regenerate a token/secret from a previous conusmer key, use ACTION_UPDATE instead;");
+        Log.e(TAG, "can't insert new Registry key...");
         throw new SQLException("Failed to insert row into " + uri);
     }
 
@@ -179,11 +210,11 @@ public class OAuthProvider extends ContentProvider {
         ContentValues values = new ContentValues();
         values.put(Consumers.ACTIVITY, activity);
         values.put(Consumers.PACKAGE_NAME, getContext().getPackageName());
-        values.put(Consumers.IS_AUTHORISED, 1);
+        values.put(Consumers.IS_AUTHORISED, true);
         values.put(Consumers.REGISTRY_ID, regid);
         values.put(Consumers.IS_SERVICE_PUBLIC, isPublic);
         values.put(Consumers.SIGNATURE, si.toByteArray());
-        values.put(Consumers.OWNS_CONSUMER_KEY, 1);
+        values.put(Consumers.OWNS_CONSUMER_KEY, true);
 
         Long now = Long.valueOf(System.currentTimeMillis());
         values.put(Consumers.CREATED_DATE, now);
@@ -198,10 +229,13 @@ public class OAuthProvider extends ContentProvider {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         switch (sUriMatcher.match(uri)) {
             case REGISTRY:
+
                 qb.setTables(REGISTRY_TABLE_NAME + " LEFT OUTER JOIN " + CONSUMER_TABLE_NAME
                         + " ON " + join('.', REGISTRY_TABLE_NAME, Registry._ID) + "="
                         + join('.', CONSUMER_TABLE_NAME, Consumers.REGISTRY_ID));
+
                 qb.setProjectionMap(sRegistryProjectionMap);
+
                 if (!(getContext().checkCallingPermission(
                         "com.novoda.oauth.ACCESS_OAUTH_INFORMATION") == PackageManager.PERMISSION_GRANTED))
                     qb.appendWhere(join('.', CONSUMER_TABLE_NAME, Consumers.IS_SERVICE_PUBLIC)
@@ -212,24 +246,32 @@ public class OAuthProvider extends ContentProvider {
                 break;
 
             case REGISTRY_ID:
+
                 qb.setTables(REGISTRY_TABLE_NAME + " LEFT OUTER JOIN " + CONSUMER_TABLE_NAME
                         + " ON " + join('.', REGISTRY_TABLE_NAME, Registry._ID) + "="
                         + join('.', CONSUMER_TABLE_NAME, Consumers.REGISTRY_ID));
+
                 qb.setProjectionMap(sRegistryProjectionMap);
+
                 qb.appendWhere(sRegistryProjectionMap.get(Registry._ID) + "="
                         + uri.getPathSegments().get(1) + " AND "
                         + sConsumerProjectionMap.get(Consumers.OWNS_CONSUMER_KEY) + "=1");
                 break;
 
             case CONSUMERS:
+
                 qb.setTables(CONSUMER_TABLE_NAME);
+
                 qb.setProjectionMap(sConsumerProjectionMap);
+
                 qb.appendWhere(Consumers.REGISTRY_ID + "=" + uri.getPathSegments().get(1));
+
                 if (TextUtils.isEmpty(sortOrder)) {
                     sortOrder = Consumers.DEFAULT_SORT_ORDER;
                 } else {
                     orderBy = sortOrder;
                 }
+
                 break;
 
             default:
@@ -302,6 +344,8 @@ public class OAuthProvider extends ContentProvider {
                 return OAuth.Registry.CONTENT_ITEM_TYPE;
             case REGISTRY:
                 return OAuth.Registry.CONTENT_TYPE;
+            case CONSUMERS:
+                return OAuth.Consumers.CONTENT_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
