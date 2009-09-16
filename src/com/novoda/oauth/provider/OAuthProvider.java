@@ -127,6 +127,9 @@ public class OAuthProvider extends ContentProvider {
         values.put(Consumers.CREATED_DATE, now);
         values.put(Consumers.MODIFIED_DATE, now);
 
+        values.put(Consumers.OWNS_CONSUMER_KEY, false);
+        values.put(Consumers.REGISTRY_ID, uri.getPathSegments().get(1));
+
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
         Uri consumerUri = null;
