@@ -86,8 +86,8 @@ public class OAuthCallActivity extends Activity {
         if (consumer.getCount() == 0) {
             showDialog(SHOULD_AUTHORISE);
         } else {
-            // otherwise check if authorised
-            if (consumer.getInt(consumer.getColumnIndexOrThrow(Consumers.IS_BANNED)) == 1) {
+            if (consumer.moveToFirst()
+                    && consumer.getInt(consumer.getColumnIndexOrThrow(Consumers.IS_BANNED)) == 1) {
                 Toast.makeText(this,
                         "Current application is banned, use the OAuth application to unban", 2000);
             } else {
@@ -154,6 +154,7 @@ public class OAuthCallActivity extends Activity {
                 case DialogInterface.BUTTON_NEUTRAL:
                     ContentValues values = new ContentValues();
                     values.put(Consumers.PACKAGE_NAME, packageName);
+                    values.put(Consumers.ACTIVITY, callingActivity.getClassName());
                     values.put(Consumers.IS_AUTHORISED, true);
                     values.put(Consumers.IS_BANNED, false);
                     values.put(Consumers.ACTIVITY, callingActivity.getClassName());

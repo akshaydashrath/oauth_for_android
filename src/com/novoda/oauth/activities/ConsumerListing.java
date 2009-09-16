@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class ConsumerListing extends ListActivity {
 
@@ -45,6 +46,12 @@ public class ConsumerListing extends ListActivity {
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
+            TextView name = (TextView)view.findViewById(R.id.name);
+            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(Consumers.APP_NAME)));
+            
+            TextView activity = (TextView)view.findViewById(R.id.activity);
+            activity.setText(cursor.getString(cursor.getColumnIndexOrThrow(Consumers.ACTIVITY)));
+            
         }
 
         @Override
