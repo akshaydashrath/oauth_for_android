@@ -8,7 +8,7 @@ import com.novoda.oauth.provider.OAuth.Registry;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import android.app.ExpandableListActivity;
+import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -23,18 +23,23 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class OAuthListing extends ExpandableListActivity {
+public class OAuthListing extends ListActivity {
     private static final String TAG = "OAuth:";
 
-    private Cursor cursor;
+    private Cursor registry;
 
     private PackageManager manager;
 
@@ -43,18 +48,17 @@ public class OAuthListing extends ExpandableListActivity {
         super.onCreate(savedInstanceState);
         // setContentView(R.layout.oauth_list_activity);
         manager = getPackageManager();
-        cursor = managedQuery(OAuth.Registry.CONTENT_URI, projection, null, null, null);
+        registry = managedQuery(OAuth.Registry.CONTENT_URI, null, null, null, null);
 
         // Check if we have the default values set, if not populate with default
         // values
-        if (cursor.getCount() == 0) {
+        if (registry.getCount() == 0) {
             populateDefault();
-            cursor.requery();
+            registry.requery();
         }
 
-        setListAdapter(new AllItemAdapter(cursor, this));
-        getExpandableListView().setOnGroupClickListener(new RegistryOnClickListener());
-        getExpandableListView().setOnChildClickListener(new ConsumerOnClickListener());
+        setListAdapter(new RegistryListAdapater(this, registry));
+        getListView().setOnItemClickListener(new RegistryOnClickListener());
     }
 
     @Override
@@ -67,79 +71,56 @@ public class OAuthListing extends ExpandableListActivity {
         getContentResolver().bulkInsert(Registry.CONTENT_URI, parseProviders(providers));
     }
 
-    private class ConsumerOnClickListener implements ExpandableListView.OnChildClickListener {
-        @Override
-        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
-                int childPosition, long id) {
-            return false;
-        }
-    }
+    private class RegistryOnClickListener implements OnItemClickListener {
 
-    private class RegistryOnClickListener implements ExpandableListView.OnGroupClickListener {
         @Override
-        public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-            if (v.getTag() == null) {
+        public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+            if (view.getTag() == null) {
                 Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, id);
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
-                return true;
             }
-            return false;
         }
     }
 
-    private class AllItemAdapter extends CursorTreeAdapter {
+    private class RegistryListAdapater extends CursorAdapter {
 
-        public AllItemAdapter(Cursor cursor, Context context) {
-            super(cursor, context);
+        public RegistryListAdapater(Context context, Cursor c) {
+            super(context, c);
         }
 
         @Override
-        protected void bindChildView(View view, Context context, Cursor cursor, boolean isExpanded) {
-            TextView url = (TextView)view.findViewById(R.id.url);
-            TextView name = (TextView)view.findViewById(R.id.name);
-            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(Consumers.APP_NAME)));
-            url.setText(cursor.getString(cursor.getColumnIndexOrThrow(Consumers.PACKAGE_NAME)));
-        }
+        public void bindView(View view, Context context, Cursor cursor) {
+            ImageView active = (ImageView)view.findViewById(R.id.tb);
+            if (cursor.isNull(cursor.getColumnIndexOrThrow(Registry.ACCESS_TOKEN))) {
+                active.setImageDrawable(context.getResources().getDrawable(
+                        R.drawable.btn_check_buttonless_off));
+            } else {
+                active.setImageDrawable(context.getResources().getDrawable(
+                        R.drawable.btn_check_buttonless_on));
+            }
 
-        @Override
-        protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
             view.setTag(cursor.getString(cursor.getColumnIndexOrThrow(Registry.ACCESS_TOKEN)));
-            TextView url = (TextView)view.findViewById(R.id.url);
+
             TextView name = (TextView)view.findViewById(R.id.name);
             name.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.NAME)));
+
+            TextView url = (TextView)view.findViewById(R.id.url);
             url.setText(cursor.getString(cursor.getColumnIndexOrThrow(Registry.URL)));
+
             ImageView icon = (ImageView)view.findViewById(R.id.icon);
             setIcon(icon, cursor.getString(cursor.getColumnIndexOrThrow(Consumers.PACKAGE_NAME)),
                     cursor.getString(cursor.getColumnIndexOrThrow(Consumers.ACTIVITY)));
         }
 
         @Override
-        protected Cursor getChildrenCursor(Cursor groupCursor) {
-            long regId = groupCursor.getLong(cursor.getColumnIndexOrThrow(Registry._ID));
-            Uri.Builder builder = Registry.CONTENT_URI.buildUpon();
-            ContentUris.appendId(builder, regId);
-            builder.appendEncodedPath("consumers");
-            Uri appperreg = builder.build();
-            return managedQuery(appperreg, consumerProjection, null, null, null);
-        }
-
-        @Override
-        protected View newChildView(Context context, Cursor cursor, boolean isLastChild,
-                ViewGroup parent) {
-            return View.inflate(context, R.layout.oauth_list_item, null);
-        }
-
-        @Override
-        protected View newGroupView(Context context, Cursor cursor, boolean isExpanded,
-                ViewGroup parent) {
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
             return View.inflate(context, R.layout.oauth_list_item, null);
         }
 
         private void setIcon(ImageView icon, String pck, String activity) {
             try {
-                icon.setImageDrawable(manager
-                        .getActivityIcon(new ComponentName(pck, pck + activity)));
+                icon.setImageDrawable(manager.getActivityIcon(new ComponentName(pck, activity)));
             } catch (NameNotFoundException e) {
                 Log.w(TAG, "could not find the icon for the activity: " + e.getMessage());
                 icon.setImageDrawable(manager.getDefaultActivityIcon());
@@ -148,15 +129,6 @@ public class OAuthListing extends ExpandableListActivity {
             }
         }
     }
-
-    private static String[] projection = {
-            Registry._ID, Registry.NAME, Registry.ICON, Registry.URL, Registry.ACCESS_TOKEN,
-            Consumers.ACTIVITY, Consumers.PACKAGE_NAME
-    };
-
-    private static String[] consumerProjection = {
-            Consumers._ID, Consumers.APP_NAME, Consumers.PACKAGE_NAME
-    };
 
     /*
      * Parse the default XML for providers value. The XML should have the tag
