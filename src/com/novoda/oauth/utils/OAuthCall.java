@@ -39,6 +39,8 @@ public class OAuthCall implements IOAuthCall {
         this.endpoint = endpoint;
         if (fields == null)
             this.fields = new HashMap<String, String>();
+        else
+            this.fields = fields;
     }
 
     @Override
