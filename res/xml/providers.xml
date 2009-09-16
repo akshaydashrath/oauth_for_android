@@ -3,7 +3,7 @@
 	<provider
 		name="Twitter">
 		<url>http://twitter.com</url>
-		<activity>.TwitterIcon</activity>
+		<activity>com.novoda.oauth.TwitterIcon</activity>
 		<consumer_key>uiFzdLNX9Hm8NZlgGUzDtQ</consumer_key>
 		<consumer_secret>ZEqiSbUiBCM6t1XWqdrFYOVjvxR7HDeH0LSAA</consumer_secret>
 		<request_token_url>http://twitter.com/oauth/request_token</request_token_url>
@@ -14,7 +14,7 @@
 	<provider
 		name="Jaiku">
 		<url>http://jaiku.com</url>
-		<activity>.JaikuIcon</activity>
+		<activity>com.novoda.oauth.JaikuIcon</activity>
 		<consumer_key>69d17e98d23141b78f68280d31a2173c</consumer_key>
 		<consumer_secret>b1c7eb4acd22479b992b70f422b512d5</consumer_secret>
 		<request_token_url>http://jaiku.com/api/request_token</request_token_url>
@@ -25,7 +25,7 @@
 	<provider
 		name="FireEagle">
 		<url>http://fireeagle.yahoo.net</url>
-		<activity>.FireEagleIcon</activity>
+		<activity>com.novoda.oauth.FireEagleIcon</activity>
 		<consumer_key>RiT6acWHI9wq</consumer_key>
 		<consumer_secret>2Cnr0bGQ0FzEDr88lFu0NDHmZxMQmqvU</consumer_secret>
 		<request_token_url>https://fireeagle.yahooapis.com/oauth/request_token</request_token_url>
@@ -37,7 +37,7 @@
 	<provider
 		name="BrightKite">
 		<url>http://brightkite.com</url>
-		<activity>.BrightKiteIcon</activity>
+		<activity>com.novoda.oauth.BrightKiteIcon</activity>
 		<consumer_key>duWfPEu7g0pA6qQGbw9g</consumer_key>
 		<consumer_secret>Y0ewA9h1QgKKxzZdinvLOr3KVbKT2Be2irUY7PbcQ5E</consumer_secret>
 		<request_token_url>http://brightkite.com/oauth/request_token</request_token_url>
@@ -49,12 +49,24 @@
 	<provider
 		name="JaikuNovoda">
 		<url>http://jaikunovoda.appspot.com/</url>
-		<activity>.FlickrIcon</activity>
+		<activity>com.novoda.oauth.JaikuIcon</activity>
 		<consumer_key>6a02c9a8ae584673a7dd26a4bdf7d63e</consumer_key>
 		<consumer_secret>946295dfa48b47c284a32c50e848d7a1</consumer_secret>
 		<request_token_url>http://jaikunovoda.appspot.com/api/request_token</request_token_url>
 		<access_token_url>http://jaikunovoda.appspot.com/api/access_token</access_token_url>
 		<authorize_url>http://jaikunovoda.appspot.com/api/authorize</authorize_url>
 		<description>If you're like us, you're tired of the rise of social networks that take away from your real life. Sure, it's great to have a gazillion friends on MySpace, but really, how many of them have you actually met? Brightkite connects people based on the places they visit in the real world. With Brightkite you can see where your friends are, what they're up to, see what's going on around you, and meet real-world friends. Most people who have tried the service understand that Brightkite doesn't really track you, it's up to you to decide how often you "check in", and at what accuracy. On top of that, we have pretty comprehensive privacy controls.</description>
+	</provider>
+	
+	<provider
+		name="MySpace">
+		<url>http://myspace.com/</url>
+		<activity>com.novoda.oauth.MySpaceIcon</activity>
+		<consumer_key>9bbef702c5d84d1ca318077c4cdd4652</consumer_key>
+		<consumer_secret>10a627a937a243d2a025f64a45a255671a8475d00d5842f096954f59570b1ea0</consumer_secret>
+		<request_token_url>http://api.myspace.com/request_token</request_token_url>
+		<access_token_url>http://api.myspace.com/access_token</access_token_url>
+		<authorize_url>http://api.myspace.com/authorize</authorize_url>
+		<description>MySpace is an online community that lets you meet your friends' friends. Create a community on MySpace and you can share photos, journals and interests with your growing network of mutual friends! See who knows who, or how you are connected. Find out if you really are six people away from Kevin Bacon.</description>
 	</provider>
 </providers>

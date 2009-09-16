@@ -188,8 +188,16 @@
 			android:icon="@drawable/myspace_48x48"
 			android:targetActivity=".activities.OAuthItemViewActivity" />
 
+		<activity-alias
+			android:name="MySpaceIcon"
+			android:icon="@drawable/myspace_48x48"
+			android:targetActivity=".activities.OAuthItemViewActivity" />
 
-		<!-- Registering all application's so they can access their URI -->
+
+		<!--
+			Registering all application's so they can access their URI - is
+			disabled for now
+		-->
 		<receiver
 			android:name="com.novoda.oauth.receiver.RegisterURIPermissions">
 			<intent-filter>

@@ -1,6 +1,7 @@
 
 package com.novoda.oauth.provider;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.pm.Signature;
 import android.database.Cursor;
@@ -141,24 +142,42 @@ public class QueryProviderTest extends ProviderTestCase3<OAuthProvider> {
         }, null, null, null);
         assertEquals(1, cur.getCount());
     }
-    
+
     public void testShouldReturnOwnersPackageAndActivity() throws Exception {
         standardInsert();
-        
+
         ContentValues values = createReg("regkey123");
         setPermission(true);
         setPackage(PACKAGE_UNDER_TEST);
         values.put(Consumers.ACTIVITY, ".MyActivity");
         assertNotNull(mResolver.insert(REGISTRY_URI, values));
-        
+
         Cursor cur = mResolver.query(REGISTRY_URI, new String[] {
-            Consumers.ACTIVITY, Consumers.PACKAGE_NAME
-        }, Registry.CONSUMER_KEY + "=?" , new String[]{"regkey123"}, null);
-        
+                Consumers.ACTIVITY, Consumers.PACKAGE_NAME
+        }, Registry.CONSUMER_KEY + "=?", new String[] {
+            "regkey123"
+        }, null);
+
         assertEquals(1, cur.getCount());
         assertTrue(cur.moveToFirst());
-        assertEquals(PACKAGE_UNDER_TEST, cur.getString(cur.getColumnIndexOrThrow(Consumers.PACKAGE_NAME)));
+        assertEquals(PACKAGE_UNDER_TEST, cur.getString(cur
+                .getColumnIndexOrThrow(Consumers.PACKAGE_NAME)));
         assertEquals(".MyActivity", cur.getString(cur.getColumnIndexOrThrow(Consumers.ACTIVITY)));
+    }
+
+    public void testShouldReturnTheApplicationForRegistry() throws Exception {
+        standardInsert();
+
+        Cursor cur = mResolver.query(REGISTRY_URI.buildUpon().appendEncodedPath("1/consumers")
+                .build(), new String[] {
+            Consumers.IS_BANNED
+        }, Consumers.PACKAGE_NAME + "=?", new String[] {
+            PACKAGE_UNDER_TEST
+        }, null);
+
+        assertEquals(1, cur.getCount());
+        assertTrue(cur.moveToFirst());
+        assertEquals(0, cur.getInt(cur.getColumnIndexOrThrow(Consumers.IS_BANNED)));
     }
 
     /* SQL */

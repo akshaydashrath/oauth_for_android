@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="token_request_message">Accessing the remote service for authorization token. After done so, click on OK which will redirect you to the browser for which you ll need to login and authorize the application.</string>
+    <string name="authorise_application">Do you wish to authorise</string>
 	<string
 		name="authorise_application">Do you wish to authorise</string>
 	<string
