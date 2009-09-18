@@ -43,7 +43,6 @@ public class OAuthCall implements IOAuthCall {
             this.fields = fields;
     }
 
-    @Override
     public void onCreate(OAuthObject oauthData) {
         provider = new OAuthServiceProvider(oauthData.getRequestTokenURL(), oauthData
                 .getAuthorizeURL(), oauthData.getAccessTokenURL());
@@ -59,7 +58,6 @@ public class OAuthCall implements IOAuthCall {
         return call(endpoint, fields);
     }
 
-    @Override
     public OAuthMessage call(String url, Map<String, String> fields) {
         try {
             fields.put(OAuth.OAUTH_TIMESTAMP, "" + System.currentTimeMillis());

@@ -69,7 +69,6 @@ public class OAuthListing extends ListActivity {
 
     private class RegistryOnClickListener implements OnItemClickListener {
 
-        @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             Uri uri = ContentUris.withAppendedId(Registry.CONTENT_URI, id);
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
