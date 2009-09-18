@@ -24,7 +24,6 @@ public class ManualTest extends Activity {
         Button but = (Button)findViewById(com.novoda.oauth.tests.R.id.jaiku);
         but.setOnClickListener(new OnClickListener() {
 
-            @Override
             public void onClick(View v) {
                 intent = new Intent();
                 intent.setAction("com.novoda.oauth.action.OAUTH_CALL");
@@ -49,7 +48,6 @@ public class ManualTest extends Activity {
         Button twitter = (Button)findViewById(com.novoda.oauth.tests.R.id.twitter);
         twitter.setOnClickListener(new OnClickListener() {
 
-            @Override
             public void onClick(View v) {
                 intent = new Intent();
                 intent.setAction("com.novoda.oauth.action.OAUTH_CALL");

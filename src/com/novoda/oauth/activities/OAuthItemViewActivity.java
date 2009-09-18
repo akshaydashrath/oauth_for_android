@@ -153,7 +153,6 @@ public class OAuthItemViewActivity extends TabActivity {
 
         Button authorise = (Button)findViewById(R.id.authorize);
         authorise.setOnClickListener(new OnClickListener() {
-            @Override
             public void onClick(View v) {
                 buildProgressDialog().show();
             }
@@ -177,14 +176,12 @@ public class OAuthItemViewActivity extends TabActivity {
         dialog.setMessage(getString(R.string.token_request_message));
 
         dialog.setButton(Dialog.BUTTON_NEGATIVE, "Cancel", new Dialog.OnClickListener() {
-            @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(TAG, "tests cancel");
             }
         });
 
         dialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new Dialog.OnClickListener() {
-            @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(TAG, "tests click");
                 RequestTokenRetrievalTask t = new RequestTokenRetrievalTask();

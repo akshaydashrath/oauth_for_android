@@ -143,7 +143,6 @@ public class OAuthCallActivity extends Activity {
     }
 
     private class AuthoriseDialogClickListener implements DialogInterface.OnClickListener {
-        @Override
         public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
             switch (which) {
