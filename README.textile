@@ -1,0 +1,55 @@
+h1. OAuth application for cross application reference in Android.
+
+The OAuth application is a OAuth frontend for Android. It lets user connect their OAuth based services to their device. As such they don't require to login more then once or via other applications which needs OAuth access. For further information about OAuth, please visit http://oauth.net
+
+h2. How it works.
+
+The OAuth application keeps track of all OAuth services via SQLite table called registry. The provider.xml contains a list of default service provider. I recommend you try to add a new OAuth service provider and try it out. If the provider works, do commit it. If not, please open a bug for that provider.
+
+h3. Adding a new provider.
+
+In order to add a new provider, you need the following callback schema: x-oauth-android://callback when registering your application for the service provider. If the service provider does not accept such schema, use http://novoda.com/oauth which redirects automatically to the x-oauth-android://callback schema. With newer OAuth versions, the callback is used within the request and as such, you don't need to provide the callback URL upon registration.
+
+You can manually add a new service provider within the code:
+
+<pre>
+<code>
+ContentValues values = new ContentValues(); 
+values.put('request_token_url', 'http://mysite.com/request_token');
+values.put('access_token_url', 'http://mysite.com/access_token');
+values.put('authorize_url', 'http://mysite.com/authorize');
+values.put('consumer_key', 'myconsumerkey');
+values.put('consumer_secret', 'mysecret'); 
+getContentResolver().insert(Uri.parse('content://com.novoda.oauth.providers/registry'), values)
+</code>
+</pre>
+
+
+h3. Redirecting the user for OAuth activation
+
+If you want the user to activate the OAuth application, you can call the following activity:
+
+<pre>
+<code>
+intent = new Intent();
+intent.setAction("com.novoda.oauth.action.OAUTH_CALL");
+
+intent.setData(Uri
+        .parse("content://com.novoda.oauth.provider.OAuth/registry"), ID_OF_THE_SERVICE));
+
+Bundle extras = new Bundle();
+extras.putString("endpoint", ENDPOINT_URI);
+HashMap<String, String> value = new HashMap<String, String>();
+extras.putSerializable("parameters", value);
+
+intent.putExtras(extras);
+startActivityForResult(intent, RESULT_CALLBACK_ID);
+</code>
+</pre>
+
+Currently, you need to know the ID of the service. I am working on a better way to get the id. Maybe by name or authoriz URL. Up for discussion.
+
+
+Icon pack downloaded under the CC license from:
+http://www.komodomedia.com/blog/2009/06/social-network-icon-pack/
+http://paulrobertlloyd.com/2009/06/social_media_icons
