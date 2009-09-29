@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<providers>
+	<provider name="Twitter">
+		<consumer_key>ckey</consumer_key>
+		<consumer_secret>csecret</consumer_secret>
+		<request_token_url>tokenurl</request_token_url>
+		<access_token_url>accessurl</access_token_url>
+		<authorize_url>authorize</authorize_url>
+		<description>description</description>
+		<url>url</url>
+		<icon>icon</icon>
+	</provider>
+	<provider name="Jaiku">
+		<consumer_key>ckey</consumer_key>
+		<consumer_secret>csecret</consumer_secret>
+		<request_token_url>tokenurl</request_token_url>
+		<access_token_url>accessurl</access_token_url>
+		<authorize_url>authorize</authorize_url>
+		<description>description</description>
+		<url>url</url>
+		<icon>icon</icon>
+	</provider>
+</providers>
