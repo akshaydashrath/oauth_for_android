@@ -69,4 +69,26 @@
 		<authorize_url>http://api.myspace.com/authorize</authorize_url>
 		<description>MySpace is an online community that lets you meet your friends' friends. Create a community on MySpace and you can share photos, journals and interests with your growing network of mutual friends! See who knows who, or how you are connected. Find out if you really are six people away from Kevin Bacon.</description>
 	</provider>
+	<provider
+		name="Rummble">
+		<url>http://rummble.com/</url>
+		<activity>com.novoda.oauth.MySpaceIcon</activity>
+		<consumer_key>zmprtqtpcbtta65b6keh4x2g</consumer_key>
+		<consumer_secret>ktfdhfrm4u</consumer_secret>
+		<request_token_url>http://api.rummble.com?method=auth.getRequestToken</request_token_url>
+		<access_token_url>http://api.rummble.com?method=auth.getAccessToken</access_token_url>
+		<authorize_url>http://www.rummble.com/private/authorize.do</authorize_url>
+		<description>Rummble is like a travel guide written for you by your friends. It is a location based mobile social network which delivers personalized user generated content based upon recommendations and trust in your friend’s network. Perfect for obtaining timely, trusted and relevant information about people, places and events; at home or on the move. It's a Web 3.0 social network for the Web 2.0 generation. No more search with Rummble, just results!</description>
+	</provider>
+	<provider
+		name="Qype">
+		<url>http://qype.com/</url>
+		<activity>com.novoda.oauth.MySpaceIcon</activity>
+		<consumer_key>9UBQ3XwPLl4SuxfUhr09fQ</consumer_key>
+		<consumer_secret>rWmBenH9Zlr9iBe1wuaTgXqPflkgS9cEvYC5p9ytw</consumer_secret>
+		<request_token_url>http://api.qype.com/oauth/request_token</request_token_url>
+		<access_token_url>http://www.qype.com/auth_tokens/new</access_token_url>
+		<authorize_url>http://www.qype.com/mobile/authorize</authorize_url>
+		<description>Simply put, Qype is the quick, cool way to find and discover places based on the reviews and recommendations of thousands of people. Qype has all the essential information you need, plus reviews, tips and recommendations from our community of reviewers who can tell you the full story about a place before you even walk in the door. And once you've been there why not come back and tell us what you thought? After all, the more you put into Qype the more you get out of it.</description>
+	</provider>
 </providers>
