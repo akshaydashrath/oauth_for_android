@@ -1,54 +1,75 @@
-h1. OAuth application for cross application reference in Android.
+h1. Android's OAuth Providers and Dashboard
 
-The OAuth application is a OAuth frontend for Android. It lets user connect their OAuth based services to their device. As such they don't require to login more then once or via other applications which needs OAuth access. For further information about OAuth, please visit http://oauth.net
+Install the app on your Android phone by scanning this QR code:
+!http://chart.apis.google.com/chart?cht=qr&chs=230x230&chl=http%3A%2F%2Fcloud.github.com%2Fdownloads%2Fnovoda%2Foauth_for_android%2FOAuth.apk!
 
-h2. How it works.
+h2. Benefits
 
-The OAuth application keeps track of all OAuth services via SQLite table called registry. The provider.xml contains a list of default service provider. I recommend you try to add a new OAuth service provider and try it out. If the provider works, do commit it. If not, please open a bug for that provider.
+This is an OAuth frontend for Android. Users can choose from an overview of available services which OAuth authenticated connection they wish to allow. Developers need no longer concern themselves with the proper handling of OAuth authentication, instead handing off responsibility to the OAuth providers. Using this method there are two main benefits:
+
+* After an initial authentication, users can then opt to presume this application authenticated 
+* Users need not trust closed source, third party applications with their credentials
+
+Screenshot of providers dashboard:
+!http://dl.getdropbox.com/u/478969/Screenshot-Android%20Emulator%20%28Default%3A5554%29.png!
+
+Screenshot of available authenticated service detail:
+!http://dl.getdropbox.com/u/478969/Screenshot-Android%20Emulator%20%28Default%3A5554%29-1.png!
+
+h2. OAuth App details 
+
+For further information about the OAuth spec please visit http://oauth.net.
+In this implementation registered authentications are persisted as securely as possible in the 'registry' table of the database. A list of the available OAuth authenticated services are openly visible to developers in the provider.xml.
+
+h2. Help us add additional providers! 
+
+A good way of becoming orientated with the OAuth app's functionality is to add a new provider which authenticates with an external service. If the provider works, please do alert us to it's presence and we'll add it to the list! If you have problems adding a provider then please open an issue with the full details of your error.
 
 h3. Adding a new provider.
 
-In order to add a new provider, you need the following callback schema: x-oauth-android://callback when registering your application for the service provider. If the service provider does not accept such schema, use http://novoda.com/oauth which redirects automatically to the x-oauth-android://callback schema. With newer OAuth versions, the callback is used within the request and as such, you don't need to provide the callback URL upon registration.
+In order to add a new provider, you need to specify the following callback schema: x-oauth-android://callback when registering your application for the service provider. In the event of some services not accepting this then use http://novoda.com/oauth which will redirect to the x-oauth-android://callback. With newer OAuth versions, the callback is used within the request so you don’t need to provide the callback URL upon registration.
 
-You can manually add a new service provider within the code:
+
+Adding a new service provider in code:
 
 <pre>
-<code>
-ContentValues values = new ContentValues(); 
-values.put('request_token_url', 'http://mysite.com/request_token');
-values.put('access_token_url', 'http://mysite.com/access_token');
-values.put('authorize_url', 'http://mysite.com/authorize');
-values.put('consumer_key', 'myconsumerkey');
-values.put('consumer_secret', 'mysecret'); 
-getContentResolver().insert(Uri.parse('content://com.novoda.oauth.providers/registry'), values)
-</code>
-</pre>
-
+	<code>	
+	ContentValues values = new ContentValues(); 
+	values.put('request_token_url', 'http://mysite.com/request_token');
+	values.put('access_token_url', 'http://mysite.com/access_token');
+	values.put('authorize_url', 'http://mysite.com/authorize');
+	values.put('consumer_key', 'myconsumerkey');
+	values.put('consumer_secret', 'mysecret'); 
+	
+	getContentResolver().insert(Uri.parse('content://com.novoda.oauth.providers/registry'), values)
+	</code>
+</pre>	
 
 h3. Redirecting the user for OAuth activation
 
 If you want the user to activate the OAuth application, you can call the following activity:
 
 <pre>
-<code>
-intent = new Intent();
-intent.setAction("com.novoda.oauth.action.OAUTH_CALL");
-
-intent.setData(Uri
-        .parse("content://com.novoda.oauth.provider.OAuth/registry"), ID_OF_THE_SERVICE));
-
-Bundle extras = new Bundle();
-extras.putString("endpoint", ENDPOINT_URI);
-HashMap<String, String> value = new HashMap<String, String>();
-extras.putSerializable("parameters", value);
-
-intent.putExtras(extras);
-startActivityForResult(intent, RESULT_CALLBACK_ID);
-</code>
+	<code>
+	Intent intent = new Intent();
+	Bundle extras = new Bundle();
+	HashMap<String, String> value = new HashMap<String, String>();
+	
+	intent.setAction("com.novoda.oauth.action.OAUTH_CALL");
+	intent.setData(Uri.parse("content://com.novoda.oauth.provider.OAuth/registry"), ID_OF_THE_SERVICE));
+	extras.putString("endpoint", ENDPOINT_URI);
+	extras.putSerializable("parameters", value);
+	intent.putExtras(extras);
+	
+	startActivityForResult(intent, RESULT_CALLBACK_ID);
+	</code>
 </pre>
 
-Currently, you need to know the ID of the service. I am working on a better way to get the id. Maybe by name or authoriz URL. Up for discussion.
 
+Accessing the chosen OAuth provider via it's ID is currently a limitation we'd like to change. Alternatives are by name or authoriz URL. It's up for discussion and suggestions are appreciated.
+
+A provided test application can be installed on your Android phone by scanning this QR code:
+!http://chart.apis.google.com/chart?cht=qr&chs=120x120&chl=http%3A%2F%2Fcloud.github.com%2Fdownloads%2Fnovoda%2Foauth_for_android%2FOAuthTest.apk!
 
 Icon pack downloaded under the CC license from:
 http://www.komodomedia.com/blog/2009/06/social-network-icon-pack/
