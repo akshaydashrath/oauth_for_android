@@ -10,6 +10,9 @@ import com.novoda.oauth.utils.OAuthCall;
 
 import net.oauth.OAuthMessage;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,6 +27,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 
 public class OAuthCallActivity extends Activity {
@@ -49,7 +53,7 @@ public class OAuthCallActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         // no UI, only Dialogs
         setVisible(false);
 
@@ -193,17 +197,13 @@ public class OAuthCallActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(OAuthMessage result) {
+        protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            try {
-                dialog.dismiss();
-                Intent intent = new Intent();
-                intent.putExtra("result", result.readBodyAsString());
-                setResult(Activity.RESULT_OK, intent);
-                finish();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            dialog.dismiss();
+            Intent intent = new Intent();
+            intent.putExtra("result", result);
+            setResult(Activity.RESULT_OK, intent);
+            finish();
         }
     }
 }

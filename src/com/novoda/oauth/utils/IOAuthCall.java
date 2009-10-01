@@ -9,5 +9,5 @@ import java.util.Map;
 
 public interface IOAuthCall {
     public abstract void onCreate(OAuthObject oauthData);
-    public abstract OAuthMessage call(final String url, final Map<String, String> fields);
+    public abstract String call(final String url, final Map<String, String> fields);
 }

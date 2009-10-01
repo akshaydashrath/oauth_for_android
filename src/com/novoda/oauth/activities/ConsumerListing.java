@@ -27,6 +27,7 @@ public class ConsumerListing extends ListActivity {
 
     private class ConsumerListAdapter extends CursorAdapter {
 
+        
         private PackageManager pckManager;
 
         public ConsumerListAdapter(Context context, Cursor c) {

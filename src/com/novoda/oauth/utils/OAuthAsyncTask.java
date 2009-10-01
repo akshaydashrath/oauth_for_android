@@ -5,13 +5,13 @@ import net.oauth.OAuthMessage;
 
 import android.os.AsyncTask;
 
-public abstract class OAuthAsyncTask extends AsyncTask<OAuthCall, Void, OAuthMessage> {
+public abstract class OAuthAsyncTask extends AsyncTask<OAuthCall, Void, String> {
 
     @SuppressWarnings("unused")
     private static final String TAG = "OAuth:";
 
     @Override
-    protected OAuthMessage doInBackground(OAuthCall... params) {
+    protected String doInBackground(OAuthCall... params) {
         return params[0].call();
     }
 
