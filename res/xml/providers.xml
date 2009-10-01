@@ -72,7 +72,7 @@
 	<provider
 		name="Rummble">
 		<url>http://rummble.com/</url>
-		<activity>com.novoda.oauth.MySpaceIcon</activity>
+		<activity>com.novoda.oauth.RummbleIcon</activity>
 		<consumer_key>zmprtqtpcbtta65b6keh4x2g</consumer_key>
 		<consumer_secret>ktfdhfrm4u</consumer_secret>
 		<request_token_url>http://api.rummble.com?method=auth.getRequestToken</request_token_url>

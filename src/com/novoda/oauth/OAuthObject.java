@@ -15,6 +15,7 @@ public class OAuthObject implements Serializable {
     private String consumerKey;
 
     private String consumerSecret;
+    
 
     private String requestTokenURL;
 

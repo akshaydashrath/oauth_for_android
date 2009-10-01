@@ -1,4 +1,3 @@
-
 package com.novoda.oauth.tests;
 
 import java.util.HashMap;
@@ -6,7 +5,6 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,7 +12,9 @@ import android.widget.Button;
 import android.widget.Toast;
 
 public class ManualTest extends Activity {
-    private Intent intent;
+    private static final String ENDPOINT_TWITTER = "http://twitter.com/statuses/mentions.json";
+	private static final String ENDPOINT_JAIKU_NOVODA = "http://jaikunovoda.appspot.com/api/json";
+	private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,22 +25,17 @@ public class ManualTest extends Activity {
         but.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
-                intent = new Intent();
-                intent.setAction("com.novoda.oauth.action.OAUTH_CALL");
-                
-                // default for jaikunovoda to speed up testing
-                intent.setData(ContentUris.withAppendedId(Uri
-                        .parse("content://com.novoda.oauth.provider.OAuth/registry"), 5));
-                
                 Bundle extras = new Bundle();
-                extras.putString("endpoint", "http://jaikunovoda.appspot.com/api/json");
                 HashMap<String, String> value = new HashMap<String, String>();
-                value.put("method", "actor_get");
-                value.put("nick", "carl");
-                extras.putSerializable("parameters", value);
+                value.put(com.novoda.oauth.Intent.EXTRA_VALUE_METHOD, "actor_get");
+                value.put(com.novoda.oauth.Intent.EXTRA_VALUE_NICK, "carl");
+                extras.putString(com.novoda.oauth.Intent.EXTRA_DEST, ENDPOINT_JAIKU_NOVODA);
+                extras.putSerializable(com.novoda.oauth.Intent.EXTRA_PARAMS, value);
 
+                intent = new Intent();
+                intent.setAction(com.novoda.oauth.Intent.OAUTH_CALL);
+                intent.setData(ContentUris.withAppendedId(com.novoda.oauth.provider.OAuth.Registry.CONTENT_URI, 5));
                 intent.putExtras(extras);
-
                 startActivityForResult(intent, 1);
             }
         });
@@ -49,22 +44,13 @@ public class ManualTest extends Activity {
         twitter.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
-                intent = new Intent();
-                intent.setAction("com.novoda.oauth.action.OAUTH_CALL");
-                
-                // default for jaikunovoda to speed up testing
-                intent.setData(ContentUris.withAppendedId(Uri
-                        .parse("content://com.novoda.oauth.provider.OAuth/registry"), 1));
-                
                 Bundle extras = new Bundle();
-                extras.putString("endpoint", "http://twitter.com/statuses/mentions.json");
-//                HashMap<String, String> value = new HashMap<String, String>();
-//                value.put("method", "actor_get");
-//                value.put("nick", "carl");
-//                extras.putSerializable("parameters", value);
+                extras.putString(com.novoda.oauth.Intent.EXTRA_DEST, ENDPOINT_TWITTER);
 
+                intent = new Intent();
+                intent.setAction(com.novoda.oauth.Intent.OAUTH_CALL);
+                intent.setData(ContentUris.withAppendedId(com.novoda.oauth.provider.OAuth.Registry.CONTENT_URI, 1));
                 intent.putExtras(extras);
-
                 startActivityForResult(intent, 1);
             }
         });

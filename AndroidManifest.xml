@@ -189,11 +189,10 @@
 			android:targetActivity=".activities.OAuthItemViewActivity" />
 
 		<activity-alias
-			android:name="MySpaceIcon"
-			android:icon="@drawable/myspace_48x48"
+			android:name="RummbleIcon"
+			android:icon="@drawable/rummble_48x48"
 			android:targetActivity=".activities.OAuthItemViewActivity" />
-
-
+			
 		<!--
 			Registering all application's so they can access their URI - is
 			disabled for now
