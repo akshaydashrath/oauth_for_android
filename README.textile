@@ -1,5 +1,7 @@
 h1. Android's OAuth Providers and Dashboard
 
+h3{color:red;}. This is a proof of concept and has security flaws. Install only at your own risk
+
 Install the app on your Android phone by scanning this QR code:
 !http://chart.apis.google.com/chart?cht=qr&chs=230x230&chl=http%3A%2F%2Fcloud.github.com%2Fdownloads%2Fnovoda%2Foauth_for_android%2FOAuth.apk!
 
