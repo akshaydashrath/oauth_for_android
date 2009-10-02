@@ -5,12 +5,13 @@ import com.novoda.oauth.R;
 import com.novoda.oauth.provider.OAuth.Consumers;
 import com.novoda.oauth.provider.OAuth.Registry;
 
-import net.oauth.OAuth;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthServiceProvider;
-import net.oauth.client.OAuthClient;
-import net.oauth.client.httpclient4.HttpClient4;
+import oauth.signpost.basic.DefaultOAuthProvider;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
+import oauth.signpost.signature.SignatureMethod;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -61,8 +62,6 @@ public class OAuthItemViewActivity extends TabActivity {
 
     private String authorizeURL;
 
-    public OAuthAccessor accessor;
-
     public HashMap<String, String> parameters = new HashMap<String, String>();
 
     public String token;
@@ -71,10 +70,25 @@ public class OAuthItemViewActivity extends TabActivity {
 
     private TabHost mTabHost;
 
+    public DefaultOAuthProvider provider;
+
+    public String oauth_verifier = "";
+
+    public String token2 = "";
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.d(TAG, intent.toString());
+
+        // Ensure we are called from the browser's callback
+        if (intent.getScheme().contains("x-oauth-android")) {
+            oauth_verifier = Uri.parse(intent.getDataString()).getQueryParameter("oauth_verifier");
+            token2 = Uri.parse(intent.getDataString()).getQueryParameter("oauth_token");
+
+            Log.d(TAG, "Getting the OAuth Token for request token: " + oauth_verifier + " "
+                    + token2);
+        }
         TokenExchangeTask task = new TokenExchangeTask();
         task.execute();
     }
@@ -203,24 +217,22 @@ public class OAuthItemViewActivity extends TabActivity {
         @Override
         protected Uri doInBackground(Void... params) {
             String url = null;
-            OAuthServiceProvider provider = new OAuthServiceProvider(requestTokenURL, authorizeURL,
-                    accessTokenURL);
-            OAuthConsumer consumer = new OAuthConsumer(CALLBACK, consumerKey, consumerSecret,
-                    provider);
-            OAuthClient client = new OAuthClient(new HttpClient4());
-            accessor = new OAuthAccessor(consumer);
 
+            oauth.signpost.OAuthConsumer consumer = new CommonsHttpOAuthConsumer(consumerKey,
+                    consumerSecret, SignatureMethod.HMAC_SHA1);
+
+            provider = new DefaultOAuthProvider(consumer, requestTokenURL, accessTokenURL,
+                    authorizeURL);
             try {
-                client.getRequestToken(accessor);
-                parameters.put(OAuth.OAUTH_TOKEN, accessor.requestToken);
-                parameters.put(OAuth.OAUTH_CALLBACK, CALLBACK);
-                url = OAuth.addParameters(accessor.consumer.serviceProvider.userAuthorizationURL,
-                        parameters.entrySet());
-            } catch (Exception e) {
-                Log.e(TAG, "Could not get authorize token from " + requestTokenURL + " "
-                        + e.getMessage());
+                url = provider.retrieveRequestToken(CALLBACK);
+            } catch (OAuthMessageSignerException e) {
                 e.printStackTrace();
-                return null;
+            } catch (OAuthNotAuthorizedException e) {
+                e.printStackTrace();
+            } catch (OAuthExpectationFailedException e) {
+                e.printStackTrace();
+            } catch (OAuthCommunicationException e) {
+                e.printStackTrace();
             }
             return Uri.parse(url);
         }
@@ -243,13 +255,10 @@ public class OAuthItemViewActivity extends TabActivity {
     private class TokenExchangeTask extends AsyncTask<Object, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Object... params) {
-            OAuthClient client = new OAuthClient(new HttpClient4());
             try {
-                client.getAccessToken(accessor, null, null);
-                Log.d(TAG, "Access token: " + accessor.accessToken);
-                Log.d(TAG, "Token secret: " + accessor.tokenSecret);
-                token = accessor.accessToken;
-                tokenSecret = accessor.tokenSecret;
+                provider.retrieveAccessToken(oauth_verifier);
+                token = provider.getConsumer().getToken();
+                tokenSecret = provider.getConsumer().getTokenSecret();
                 return true;
             } catch (Exception e) {
                 Log.e(TAG, "Could not get access token from " + accessTokenURL + " "

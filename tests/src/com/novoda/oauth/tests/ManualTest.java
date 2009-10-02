@@ -2,6 +2,8 @@ package com.novoda.oauth.tests;
 
 import java.util.HashMap;
 
+import com.novoda.oauth.tests.R;
+
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -19,11 +21,10 @@ public class ManualTest extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.novoda.oauth.tests.R.layout.main);
+        setContentView(R.layout.main);
         
-        Button but = (Button)findViewById(com.novoda.oauth.tests.R.id.jaiku);
-        but.setOnClickListener(new OnClickListener() {
-
+        final Button jaiku = (Button)findViewById(R.id.jaiku);
+        jaiku.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Bundle extras = new Bundle();
                 HashMap<String, String> value = new HashMap<String, String>();

@@ -63,34 +63,6 @@
 		</activity>
 
 		<!--
-			This is the meat of OAuth. It permits the Authorisation and
-			activation process.
-		-->
-		<activity
-			android:name=".activities.OAuthActivity"
-			android:permission="android.permission.INTERNET"
-			android:launchMode="singleTask">
-			<intent-filter>
-				<action
-					android:name="android.intent.action.VIEW" />
-				<category
-					android:name="android.intent.category.BROWSABLE" />
-				<category
-					android:name="android.intent.category.DEFAULT" />
-				<data
-					android:scheme="oauth" />
-			</intent-filter>
-			<intent-filter>
-				<action
-					android:name="android.intent.action.INSERT" />
-				<category
-					android:name="android.intent.category.DEFAULT" />
-				<data
-					android:mimeType="vnd.android.cursor.dir/vnd.novoda.oauth" />
-			</intent-filter>
-		</activity>
-
-		<!--
 			This activity will call a URL using OAuth signing. You can use this
 			activity if you don't want to hassle with OAuth for actual end point
 			calls.

@@ -8,11 +8,6 @@ import com.novoda.oauth.provider.OAuth.Registry;
 import com.novoda.oauth.utils.OAuthAsyncTask;
 import com.novoda.oauth.utils.OAuthCall;
 
-import net.oauth.OAuthMessage;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -26,8 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 
 public class OAuthCallActivity extends Activity {
@@ -53,7 +46,7 @@ public class OAuthCallActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // no UI, only Dialogs
         setVisible(false);
 
@@ -105,16 +98,22 @@ public class OAuthCallActivity extends Activity {
         oauthData = new OAuthObject();
         endpoint = getIntent().getStringExtra("endpoint");
         parameters = (HashMap<String, String>)getIntent().getSerializableExtra("parameters");
-        Cursor cursor = getContentResolver().query(getIntent().getData(), projection, null, null,
-                null);
+        Cursor cursor = getContentResolver().query(getIntent().getData(), null, null, null, null);
         if (cursor.moveToFirst()) {
-            oauthData.setConsumerKey(cursor.getString(1));
-            oauthData.setConsumerSecret(cursor.getString(2));
-            oauthData.setToken(cursor.getString(3));
-            oauthData.setTokenSecret(cursor.getString(4));
-            oauthData.setAccessTokenURL(cursor.getString(5));
-            oauthData.setRequestTokenURL(cursor.getString(6));
-            oauthData.setAuthorizeURL(cursor.getString(7));
+            oauthData.setConsumerKey(cursor.getString(cursor
+                    .getColumnIndexOrThrow(Registry.CONSUMER_KEY)));
+            oauthData.setConsumerSecret(cursor.getString(cursor
+                    .getColumnIndexOrThrow(Registry.CONSUMER_SECRET)));
+            oauthData.setToken(cursor
+                    .getString(cursor.getColumnIndexOrThrow(Registry.ACCESS_TOKEN)));
+            oauthData.setTokenSecret(cursor.getString(cursor
+                    .getColumnIndexOrThrow(Registry.ACCESS_SECRET)));
+            oauthData.setAccessTokenURL(cursor.getString(cursor
+                    .getColumnIndexOrThrow(Registry.ACCESS_TOKEN_URL)));
+            oauthData.setRequestTokenURL(cursor.getString(cursor
+                    .getColumnIndexOrThrow(Registry.REQUEST_TOKEN_URL)));
+            oauthData.setAuthorizeURL(cursor.getString(cursor
+                    .getColumnIndexOrThrow(Registry.AUTHORIZE_URL)));
             cursor.close();
         }
 
@@ -176,12 +175,6 @@ public class OAuthCallActivity extends Activity {
     protected void onPrepareDialog(int id, Dialog dialog) {
         super.onPrepareDialog(id, dialog);
     }
-
-    private static String[] projection = new String[] {
-            Registry._ID, Registry.CONSUMER_KEY, Registry.CONSUMER_SECRET, Registry.ACCESS_TOKEN,
-            Registry.ACCESS_SECRET, Registry.ACCESS_TOKEN_URL, Registry.REQUEST_TOKEN_URL,
-            Registry.AUTHORIZE_URL
-    };
 
     private Cursor consumer;
 

@@ -3,8 +3,6 @@ package com.novoda.oauth.utils;
 
 import com.novoda.oauth.OAuthObject;
 
-import net.oauth.OAuthMessage;
-
 import java.util.Map;
 
 public interface IOAuthCall {
