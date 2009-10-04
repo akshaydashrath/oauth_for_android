@@ -5,6 +5,6 @@ public class Intent extends android.content.Intent {
     public static final String EXTRA_VALUE_METHOD = "method";
     public static final String EXTRA_VALUE_NICK = "nick";
     public static final String EXTRA_PARAMS = "parameters";
-    public static final String EXTRA_DEST = "parameters";
+    public static final String EXTRA_ENDPOINT = "endpoint";
     
 }

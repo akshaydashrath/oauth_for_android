@@ -2,14 +2,11 @@ package com.novoda.oauth.tests;
 
 import java.util.HashMap;
 
-import com.novoda.oauth.tests.R;
-
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -35,7 +32,7 @@ public class ManualTest extends Activity {
                 HashMap<String, String> value = new HashMap<String, String>();
                 value.put(com.novoda.oauth.Intent.EXTRA_VALUE_METHOD, "actor_get");
                 value.put(com.novoda.oauth.Intent.EXTRA_VALUE_NICK, "carl");
-                extras.putString(com.novoda.oauth.Intent.EXTRA_DEST, ENDPOINT_JAIKU_NOVODA);
+                extras.putString(com.novoda.oauth.Intent.EXTRA_ENDPOINT, ENDPOINT_JAIKU_NOVODA);
                 extras.putSerializable(com.novoda.oauth.Intent.EXTRA_PARAMS, value);
 
                 intent = new Intent();
@@ -51,7 +48,7 @@ public class ManualTest extends Activity {
 
             public void onClick(View v) {
                 Bundle extras = new Bundle();
-                extras.putString(com.novoda.oauth.Intent.EXTRA_DEST, ENDPOINT_TWITTER);
+                extras.putString(com.novoda.oauth.Intent.EXTRA_ENDPOINT, ENDPOINT_TWITTER);
 
                 intent = new Intent();
                 intent.setAction(com.novoda.oauth.Intent.OAUTH_CALL);
