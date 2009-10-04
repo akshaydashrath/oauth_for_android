@@ -7,14 +7,19 @@ import com.novoda.oauth.tests.R;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
 public class ManualTest extends Activity {
-    private static final String ENDPOINT_TWITTER = "http://twitter.com/statuses/mentions.json";
+    
+    public static final Uri CONTENT_URI = Uri.parse("content://com.novoda.oauth.provider.OAuth/registry");
+	
+	private static final String ENDPOINT_TWITTER = "http://twitter.com/statuses/mentions.json";
 	private static final String ENDPOINT_JAIKU_NOVODA = "http://jaikunovoda.appspot.com/api/json";
 	private Intent intent;
 
@@ -35,7 +40,7 @@ public class ManualTest extends Activity {
 
                 intent = new Intent();
                 intent.setAction(com.novoda.oauth.Intent.OAUTH_CALL);
-                intent.setData(ContentUris.withAppendedId(com.novoda.oauth.provider.OAuth.Registry.CONTENT_URI, 5));
+                intent.setData(ContentUris.withAppendedId(CONTENT_URI, 5));
                 intent.putExtras(extras);
                 startActivityForResult(intent, 1);
             }
@@ -50,7 +55,7 @@ public class ManualTest extends Activity {
 
                 intent = new Intent();
                 intent.setAction(com.novoda.oauth.Intent.OAUTH_CALL);
-                intent.setData(ContentUris.withAppendedId(com.novoda.oauth.provider.OAuth.Registry.CONTENT_URI, 1));
+                intent.setData(ContentUris.withAppendedId(CONTENT_URI, 1));
                 intent.putExtras(extras);
                 startActivityForResult(intent, 1);
             }
