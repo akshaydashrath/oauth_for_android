@@ -17,11 +17,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.novoda.oauth.maven.oauth-16</groupId>
+        <groupId>novoda.oauth</groupId>
         <artifactId>oauth-16</artifactId>
         <version>1.0.0</version>
     </parent>
-    <groupId>com.novoda.oauth.maven.oauth-16</groupId>
+    <groupId>novoda.oauth6</groupId>
     <artifactId>oauth-16-instrumentationtest</artifactId>
     <version>1.0.0</version>
     <packaging>apk</packaging>
@@ -38,11 +38,11 @@
             <version>1.5_r2</version>
             <scope>provided</scope>
         </dependency>
-
+	
         <dependency>
             <!-- the target apk, which we will test. will automatically be deployed to device in pre-integration-test
             phase. -->
-            <groupId>com.novoda.oauth.maven.oauth-16</groupId>
+            <groupId>novoda.oauth</groupId>
             <artifactId>oauth-16-app</artifactId>
             <version>1.0.0</version>
             <type>apk</type>
@@ -50,12 +50,13 @@
 
         <dependency>
             <!-- optional: compile time dependency, in this case so that we can read from the R.java for example. -->
-            <groupId>com.novoda.oauth.maven.oauth-16</groupId>
+            <groupId>novoda.oauth</groupId>
             <artifactId>oauth-16-app</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
+	
     </dependencies>
     
     <build>

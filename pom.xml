@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.novoda.oauth.maven.oauth-16</groupId>
+	<groupId>novoda.oauth</groupId>
 	<artifactId>oauth-16</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
@@ -11,27 +11,5 @@
 		<module>oauth-16-app</module>
 		<module>oauth-16-instrumentationtest</module>
 	</modules>
-	
-	<repositories>
-        <repository>
-            <id>signpost-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/signpost-snapshots/</url>
-            <releases>
-              <enabled>false</enabled>
-            </releases>
-            <snapshots>
-              <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <dependencies>
-      <dependency>
-        <groupId>oauth.signpost</groupId>
-        <artifactId>signpost-core</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <scope>compile</scope>
-      </dependency>
-    </dependencies>
 
 </project>
